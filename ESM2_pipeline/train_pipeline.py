@@ -33,17 +33,16 @@ from sklearn.metrics import (
     recall_score,
     precision_score,
     matthews_corrcoef,
-    roc_auc_score
+    roc_auc_score)
 
 from pathlib import Path
 from pathlib import PurePosixPath
 import s3fs
-from transformers.convert_slow_tokenizers_checkpoints_to_fast import tokenizer_class_name
 
-from utils import load_esm_model_classification, select_datasets, preprocess_csv,
+from utils import (load_esm_model_classification, select_datasets, preprocess_csv,
     preprocess_higher_level, trainable_parameters_summary, compute_metrics, SequenceDataset, batch_create,
     class_weighting_for_clf, PerResidueClassifier, create_datasets_for_clf, train_classifier, train_final_classifier,
-    delete_unlabelled_rows, sliding_window, set_seeds
+    delete_unlabelled_rows, sliding_window, set_seeds)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
