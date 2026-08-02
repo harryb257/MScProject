@@ -578,7 +578,6 @@ def train_classifier(embedding_dim,
 def train_final_classifier(model,
                            train_dataloader,
                            loss_function,
-                           output,
                            epochs=20):
     logs = []
 
@@ -595,15 +594,10 @@ def train_final_classifier(model,
             'train_acc': train_metrics['accuracy']
         })
 
-    # Save final model
-    model_path = f'{output}_final_classifier.pt'
-
-    with open(model_path, 'wb') as f:
-        torch.save({
-            'model_state_dict': model.state_dict(),
-            'epochs': epochs
-        }, f)
-
     history = pd.DataFrame(logs)
 
-    return history
+    return {
+        "history": history,
+        "model_state_dict": model.state_dict(),
+        "epochs": epochs,
+    }
