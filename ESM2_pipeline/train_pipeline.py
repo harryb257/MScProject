@@ -283,7 +283,9 @@ def esm2_pipeline(checkpoint,
         lower_val_dict[fold] = (df_lower[df_lower['Info_split'] == split].reset_index(drop=True))
 
     # Create split of data for final training
-    lower_train_all['final'] = df_lower.reset_index(drop=True)
+    lower_train_all = df_lower.reset_index(drop=True)
+    # Create dataset
+    lower_train_all = SequenceDataset(lower_train_all)
 
     if mode != 'base':
         # Load fine-tuned model
