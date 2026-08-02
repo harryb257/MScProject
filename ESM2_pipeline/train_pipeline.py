@@ -41,8 +41,9 @@ import s3fs
 
 from utils import (load_esm_model_classification, select_datasets, preprocess_csv,
     preprocess_higher_level, trainable_parameters_summary, compute_metrics, SequenceDataset, batch_create,
-    class_weighting_for_clf, PerResidueClassifier, create_datasets_for_clf, train_classifier, train_final_classifier,
+     PerResidueClassifier, create_datasets_for_clf, train_classifier, train_final_classifier,
     delete_unlabelled_rows, sliding_window, set_seeds)
+#class_weighting_for_clf,
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
