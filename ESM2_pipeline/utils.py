@@ -23,7 +23,7 @@ import esm
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+
 import math
 import random
 
@@ -33,8 +33,7 @@ from sklearn.metrics import (
     recall_score,
     precision_score,
     matthews_corrcoef,
-    roc_auc_score,
-    confusion_matrix
+    roc_auc_score)
 
 from pathlib import Path
 from pathlib import PurePosixPath
@@ -52,6 +51,8 @@ def set_seeds(s):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(s)
 
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # load ESM2 models
 def load_esm_model_classification(checkpoint, num_labels, full):
@@ -74,22 +75,39 @@ def load_esm_model_classification(checkpoint, num_labels, full):
         return model, tokenizer
 
 
+# def select_datasets(files):
+#     # Define higher, lower and test data
+#     lower_level = None
+#     higher_level = None
+#     target = None
+#
+#     for file in files.iterdir():
+#         if 'Lower' in file.name:
+#             lower_level = file
+#         elif 'Higher' in file.name:
+#             higher_level = file
+#         elif 'Target' in file.name:
+#             target = file
+#
+#     return lower_level, higher_level, target
+
 def select_datasets(files):
     # Define higher, lower and test data
     lower_level = None
     higher_level = None
     target = None
 
-    for file in files.iterdir():
-        if 'Lower' in file.name:
-            lower_level = file
-        elif 'Higher' in file.name:
-            higher_level = file
-        elif 'Target' in file.name:
-            target = file
+    for file in files:
+        name = PurePosixPath(file).name
+
+        if 'Lower' in name:
+            lower_level = "s3://" + file
+        elif 'Higher' in name:
+            higher_level = "s3://" + file
+        elif 'Target' in name:
+            target = "s3://" + file
 
     return lower_level, higher_level, target
-
 
 
 def sliding_window(df, window_size=1024, stride=512):
@@ -202,7 +220,7 @@ def collate_fn(batch):
     }
 
 
-def batch_create(dataset, batch_size, tokenizer, model):
+def batch_create(dataset, batch_size, tokenizer, model, mode):
     """
     Function to create a DataLoader instance using the custom collate function
     """
@@ -234,7 +252,7 @@ def batch_create(dataset, batch_size, tokenizer, model):
 
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
-        if mode is 'base':
+        if mode == 'base':
 
             # Freeze model weights and calculate embeddings
             with torch.inference_mode():
@@ -248,8 +266,11 @@ def batch_create(dataset, batch_size, tokenizer, model):
             # Freeze model weights and calculate embeddings
             with torch.inference_mode():
 
-                # Use fine tuned model to generate embeddings
-                outputs = model.esm(**inputs)
+                # Use fine-tuned model to generate embeddings
+                if hasattr(model, 'esm'):
+                    outputs = model.esm(**inputs)
+                else:
+                    outputs = model(**inputs)
                 embeddings = outputs.last_hidden_state[
                     :, 1:-1, :].cpu()  # Slice embeddings to remove start and end CLS/EOS tokens
 
@@ -268,7 +289,7 @@ def batch_create(dataset, batch_size, tokenizer, model):
     return emb_output_list
 
 
-def create_datasets_for_clf(train_dict, val_dict):
+def create_datasets_for_clf(train_dict, val_dict, batch_size, tokenizer, model, mode):
     """
     Function to create datasets and store in dictionaries for cross validation
     """
@@ -285,17 +306,17 @@ def create_datasets_for_clf(train_dict, val_dict):
 
     train_loaded = {}
     for key, value in train_datasets.items():
-        train_loaded[key] = batch_create(value, tokenizer, model)
+        train_loaded[key] = batch_create(value, batch_size, tokenizer, model, mode)
 
     val_loaded = {}
     for key, value in val_datasets.items():
-        val_loaded[key] = batch_create(value, tokenizer, model)
+        val_loaded[key] = batch_create(value, batch_size, tokenizer, model, mode)
 
     return train_loaded, val_loaded
 
 
 
-def preprocess_higher_level(data):
+def preprocess_higher_level(tokenizer, data):
     """
     Preprocess each df row to tokenise the sequences and pad labels to match max length
     """
@@ -365,7 +386,7 @@ def compute_metrics(p):
 
 # Classification head
 class PerResidueClassifier(nn.Module):
-    def __init__(self):
+    def __init__(self, embedding_dim):
         super().__init__()
 
         self.net = nn.Sequential(
@@ -379,7 +400,7 @@ class PerResidueClassifier(nn.Module):
         return self.net(x)
 
 
-def class_weighting_for_clf(lower_stacked)
+def class_weighting_for_clf(lower_stacked):
     # Convert to csv
     df_lower_stacked = pd.read_csv(lower_stacked)
 
@@ -515,7 +536,7 @@ def val_one_epoch(model, val_dataloader, loss_function):
     return metrics
 
 
-def train_classifier(model,
+def train_classifier(embedding_dim,
                      train_dataloader,
                      val_dataloader,
                      loss_function,
@@ -524,7 +545,7 @@ def train_classifier(model,
 
     for key in train_dataloader.keys():
 
-        model = PerResidueClassifier().to(device)
+        model = PerResidueClassifier(embedding_dim).to(device)
 
         optimiser = optim.AdamW(model.parameters(), lr=0.001)
 
@@ -557,6 +578,7 @@ def train_classifier(model,
 def train_final_classifier(model,
                            train_dataloader,
                            loss_function,
+                           output,
                            epochs=20):
     logs = []
 
@@ -574,7 +596,7 @@ def train_final_classifier(model,
         })
 
     # Save final model
-    model_path = f'./output_{checkpoint[9:]}_{run}_final_classifier.pt'
+    model_path = f'{output}_final_classifier.pt'
 
     with open(model_path, 'wb') as f:
         torch.save({

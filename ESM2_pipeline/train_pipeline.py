@@ -38,6 +38,7 @@ from sklearn.metrics import (
 from pathlib import Path
 from pathlib import PurePosixPath
 import s3fs
+from transformers.convert_slow_tokenizers_checkpoints_to_fast import tokenizer_class_name
 
 from utils import load_esm_model_classification, select_datasets, preprocess_csv,
     preprocess_higher_level, trainable_parameters_summary, compute_metrics, SequenceDataset, batch_create,
@@ -53,10 +54,15 @@ def esm2_pipeline(checkpoint,
                   fine_tune_val_folds,
                   batch_size,
                   num_fine_tune_epochs,
-                  clf_epochs):
+                  clf_epochs,
+                  pathogen,
+                  output_dir):
 
-    S3 = "s3://esm2-s3-bucket/datasets/Orthopoxvirus/"
+    checkpoint_name = checkpoint.split("/")[-1]
 
+    output = f"{output_dir.rstrip('/')}/{pathogen}/{checkpoint_name}_{mode}"
+
+    # Set random seeds
     set_seeds(42)
 
     # Set fine-tuning method
@@ -66,16 +72,20 @@ def esm2_pipeline(checkpoint,
         full_fine_tuning = False
 
     # Model selection
-    if mode is 'base':
+    if mode == 'base':
         tokenizer = AutoTokenizer.from_pretrained(checkpoint)
         model = AutoModel.from_pretrained(checkpoint)
 
-    if mode is not 'base':
+    if mode != 'base':
         # LoRA fine-tuning if 'full_fine_tuning = False' at top of notebook
         model, tokenizer = load_esm_model_classification(checkpoint, num_labels, full_fine_tuning)
 
     # Select datasets
     model.to(device)
+
+    fs = s3fs.S3FileSystem()
+
+    files = fs.ls(files)
 
     # Assign to variables for automatic csv selection in code
     lower_level, higher_level, target = select_datasets(files)
@@ -84,7 +94,7 @@ def esm2_pipeline(checkpoint,
 
 
     # -------------- Fine tuning Preprocessing -----------------
-    if mode is not 'base':
+    if mode != 'base':
 
         # Load and preprocess dataframe
         df_higher = preprocess_csv(higher_level)
@@ -125,7 +135,7 @@ def esm2_pipeline(checkpoint,
     parameter_summary = trainable_parameters_summary(model)
 
     # Save parameter summary to csv
-    parameter_summary.to_csv(f'{S3}{checkpoint[9:]}_{mode}_trainable_parameters_summary.csv')
+    parameter_summary.to_csv(f'{output}_trainable_parameters_summary.csv')
 
 
 
@@ -140,9 +150,7 @@ def esm2_pipeline(checkpoint,
     final_train_logs = []
     final_summary_logs = []
 
-    num_fine_tune_epochs = num_fine_tune_epochs
-
-    if mode is not 'base':
+    if mode != 'base':
 
         for fold in range(1, fine_tune_val_folds+1):
 
@@ -150,7 +158,7 @@ def esm2_pipeline(checkpoint,
             model, tokenizer = load_esm_model_classification(checkpoint, num_labels, full_fine_tuning)
 
             training_args = TrainingArguments(
-                output_dir=f'./output_{checkpoint[9:]}_{mode}_training_arguments_val',
+                output_dir=f'{output}_training_arguments_val',
                 gradient_accumulation_steps=1,
                 per_device_train_batch_size=batch_size,
                 per_device_eval_batch_size=batch_size,
@@ -181,12 +189,8 @@ def esm2_pipeline(checkpoint,
 
             trainer.train()
 
-            metrics = trainer.evaluate()
-
-            metrics['fold'] = fold
-
             for log in trainer.state.log_history:
-                log['fold'] = fold
+                log = {**log, 'fold': fold}
 
                 if 'eval_loss' in log:
                     eval_logs.append(log)
@@ -195,10 +199,9 @@ def esm2_pipeline(checkpoint,
                 elif 'train_runtime' in log:
                     summary_logs.append(log)
 
-            eval_log_df = pd.DataFrame(eval_logs)
-            train_log_df = pd.DataFrame(train_logs)
-            summary_df = pd.DataFrame(summary_logs)
-
+        eval_log_df = pd.DataFrame(eval_logs)
+        train_log_df = pd.DataFrame(train_logs)
+        summary_df = pd.DataFrame(summary_logs)
 
         # Train on full data -----------------------
 
@@ -206,7 +209,7 @@ def esm2_pipeline(checkpoint,
         model, tokenizer = load_esm_model_classification(checkpoint, num_labels, full_fine_tuning)
 
         training_args = TrainingArguments(
-            output_dir = f'./output_{checkpoint[9:]}_{mode}_finetune_training_final',
+            output_dir = f'{output}_finetune_training_final',
             gradient_accumulation_steps=1,
             per_device_train_batch_size=batch_size,
             per_device_eval_batch_size=batch_size,
@@ -244,19 +247,19 @@ def esm2_pipeline(checkpoint,
         final_train_log_df = pd.DataFrame(final_train_logs)
         final_summary_df = pd.DataFrame(final_summary_logs)
 
-        model_output = f'./output_{checkpoint[9:]}_{mode}_fine_tuned_model'
+        model_output = f'{output}_fine_tuned_model'
 
         # Explicitly save model
         trainer.save_model(model_output)
 
         # Save validation metrics
-        eval_log_df.to_csv(f'{S3}{checkpoint[9:]}_{mode}_cv_validation_metrics.csv', index=False)
-        train_log_df.to_csv(f'{S3}{checkpoint[9:]}_{mode}_cv_train_metrics.csv', index=False)
-        summary_df.to_csv(f'{S3}{checkpoint[9:]}_{mode}_cv_eval_log.csv', index=False)
+        eval_log_df.to_csv(f'{output}_cv_validation_metrics.csv', index=False)
+        train_log_df.to_csv(f'{output}_cv_train_metrics.csv', index=False)
+        summary_df.to_csv(f'{output}_cv_eval_log.csv', index=False)
 
         # Save final logs
-        final_train_log_df.to_csv(f'{S3}{checkpoint[9:]}_{mode}_final_training_log.csv', index=False)
-        final_summary_df.to_csv(f'{S3}{checkpoint[9:]}_{mode}_final_training_summary.csv', index=False)
+        final_train_log_df.to_csv(f'{output}_final_training_log.csv', index=False)
+        final_summary_df.to_csv(f'{output}_final_training_summary.csv', index=False)
 
     # -------------------------------------
 
@@ -283,32 +286,34 @@ def esm2_pipeline(checkpoint,
     # Create split of data for final training
     lower_train_all['final'] = df_lower.reset_index(drop=True)
 
-    if mode is not 'base':
+    if mode != 'base':
         # Load fine-tuned model
-        model = AutoModelForTokenClassification.from_pretrained(f'./output_{checkpoint[9:]}_{mode}_fine_tuned_model')
+        model = AutoModelForTokenClassification.from_pretrained(f'{output}_fine_tuned_model')
         model.eval()
         model.to(device)
 
         # Generate embeddings for lower level data using the fine-tuned model
-        train_loaded, val_loaded = create_datasets_for_clf(lower_train_dict, lower_val_dict)
+        train_loaded, val_loaded = create_datasets_for_clf(lower_train_dict, lower_val_dict, batch_size,
+                                                           tokenizer, model, mode)
 
-        full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model)
+        full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model, mode)
 
     else:
         # Generate embeddings for lower level data using the base model
-        train_loaded, val_loaded = create_datasets_for_clf(lower_train_dict, lower_val_dict)
+        train_loaded, val_loaded = create_datasets_for_clf(lower_train_dict, lower_val_dict, batch_size,
+                                                           tokenizer, model, mode)
 
-        full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model)
+        full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model, mode)
 
 
     embedding_dim = model.config.hidden_size
 
     # Determine pos / neg weighting for loss function
     weight = class_weighting_for_clf(lower_level)
-    weight.to(device)
+    weight = weight.to(device)
 
     # Instantiate classifier
-    clf = PerResidueClassifier()
+    clf = PerResidueClassifier(embedding_dim)
 
     # Move to CUDA
     clf = clf.to(device)
@@ -320,7 +325,7 @@ def esm2_pipeline(checkpoint,
 
 
     # -------- Train the classifier ----------------
-    clf_trained = train_classifier(clf, train_loaded, val_loaded, loss_fcn, epochs=clf_epochs)
+    clf_trained = train_classifier(embedding_dim, train_loaded, val_loaded, loss_fcn, epochs=clf_epochs)
 
     # Calculate average validation metrics per epoch
     clf_validation_avg_metrics = clf_trained.groupby(['epoch'])[[
@@ -335,7 +340,7 @@ def esm2_pipeline(checkpoint,
         'val_auc']].agg(['mean', 'std'])
 
     # Save to csv
-    clf_validation_avg_metrics.to_csv(f'{S3}{checkpoint[9:]}_{mode}_clf_validation_avg_metrics.csv')
+    clf_validation_avg_metrics.to_csv(f'{output}_clf_validation_avg_metrics.csv')
 
     # Validation metrics per epoch by fold
     clf_validation_metrics = clf_trained[[
@@ -352,18 +357,19 @@ def esm2_pipeline(checkpoint,
         'val_auc']]
 
     # Save to csv
-    clf_validation_metrics.to_csv(f'{S3}{checkpoint[9:]}_{mode}_clf_validation_metrics_by_fold.csv')
+    clf_validation_metrics.to_csv(f'{output}_clf_validation_metrics_by_fold.csv')
 
     best_auc_epochs = clf_validation_avg_metrics['val_auc'].idxmax(axis=0)['mean']
 
     print('clf_validation_avg_metrics', clf_validation_avg_metrics)
 
+    clf = clf = PerResidueClassifier(embedding_dim).to(device)
 
     # Train classifier using all data for the best AUC number of epochs
-    final_clf_trained = train_final_classifier(clf, full_train_batched, loss_fcn, epochs=best_auc_epochs)
+    final_clf_trained = train_final_classifier(clf, full_train_batched, loss_fcn, output, epochs=best_auc_epochs)
 
     # Save results to csv
-    final_clf_trained.to_csv(f'{S3}{checkpoint[9:]}_{mode}_clf_final_trained_metrics_by_epoch.csv')
+    final_clf_trained.to_csv(f'{output}_clf_final_trained_metrics_by_epoch.csv')
 
     print('Final Trained Model Metrics', final_clf_trained)
 
@@ -437,17 +443,16 @@ def esm2_pipeline(checkpoint,
     test_datasets = SequenceDataset(test_df)
 
     # Create batches and embeddings using relevant ESM2 model
-    test_batched = batch_create(test_datasets, tokenizer, model)
-
+    test_batched = batch_create(test_datasets, batch_size, tokenizer, model, mode)
 
 
     # ------ Evaluate using pretrained classifier --------
 
     # Instantiate new model
-    clf = PerResidueClassifier().to(device)
+    clf = PerResidueClassifier(embedding_dim).to(device)
 
     # Load trained clf model
-    checkpoint_data = torch.load(f'./output_{checkpoint[9:]}_{mode}_final_classifier.pt', weights_only=False)
+    checkpoint_data = torch.load(f'{output}_final_classifier.pt', weights_only=False)
 
     # Load trained weights into clf
     clf.load_state_dict(checkpoint_data['model_state_dict'])
@@ -464,15 +469,15 @@ def esm2_pipeline(checkpoint,
         for batch in test_batched:
             outputs = clf(batch['embeddings'].to(device))
 
-        labels = batch['labels'].reshape(-1).to(device)
+            labels = batch['labels'].reshape(-1).to(device)
 
-        # Calculate preds and probs
-        preds = torch.argmax(outputs, dim=-1).reshape(-1)
-        probs = torch.softmax(outputs, dim=-1)[:, :, 1].reshape(-1)
+            # Calculate preds and probs
+            preds = torch.argmax(outputs, dim=-1).reshape(-1)
+            probs = torch.softmax(outputs, dim=-1)[:, :, 1].reshape(-1)
 
-        test_preds.append(preds)
-        test_labels.append(labels)
-        test_probs.append(probs)
+            test_preds.append(preds)
+            test_labels.append(labels)
+            test_probs.append(probs)
 
     # Concat tensors
     test_preds = torch.cat(test_preds)
@@ -500,11 +505,12 @@ def esm2_pipeline(checkpoint,
     test_results = pd.DataFrame(data, index=np.array(np.arange(1,2)))
 
     # Save to csv
-    test_results.to_csv(f'{S3}{checkpoint[9:]}_{mode}_test_predictions.csv')
+    test_results.to_csv(f'{output}_test_predictions.csv')
 
     print('test results', test_results)
 
     return {
+        'pathogen': pathogen,
         'checkpoint': checkpoint,
         'mode': mode
     }

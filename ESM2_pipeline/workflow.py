@@ -14,41 +14,43 @@ MODES = [
     "LoRA"
 ]
 
-files = "s3://esm2-s3-bucket/datasets/Orthopoxvirus/"
+pathogens = [
+    # 's3://esm2-s3-bucket/datasets/orthopox',
+    's3://esm2-s3-bucket/datasets/Bunyaviricetes/',
+    's3://esm2-s3-bucket/datasets/Campylobacter jejuni/']
+
+output_dir = 's3://esm2-s3-bucket/results/'
 
 results = []
 
-batch_size = 32
-
+# Batch size to use throughout
+batch_size = 16
 # Number of labels (positive and negative)
 num_labels = 2
-
 # Number of fine-tuning epochs
 num_fine_tune_epochs = 3
-
 # Number of classifier training epochs
 clf_epochs = 20
 
-for checkpoint in CHECKPOINTS:
+for pathogen in pathogens:
+    for checkpoint in CHECKPOINTS:
+        for mode in MODES:
 
-    for mode in MODES:
+            print(f"Running {pathogen} - {checkpoint} - {mode}")
 
-        print("\n" + "="*80)
-        print(f"Running {checkpoint} - {mode}")
-        print("="*80)
+            result = esm2_pipeline(
+                checkpoint=checkpoint,
+                mode=mode,
+                num_labels=num_labels,
+                files=pathogen,
+                fine_tune_val_folds=3,
+                batch_size=batch_size,
+                num_fine_tune_epochs=num_fine_tune_epochs,
+                clf_epochs=clf_epochs,
+                pathogen=pathogen,
+                output_dir=output_dir
+            )
 
-
-        result = esm2_pipeline(
-            checkpoint=checkpoint,
-            mode=mode,
-            num_labels=num_labels,
-            files=files,
-            fine_tune_val_folds=3,
-            batch_size=batch_size,
-            clf_epochs=clf_epochs,
-            output_dir=
-        )
-
-        results.append(result)
+            results.append(result)
 
 print("All experiments completed")
