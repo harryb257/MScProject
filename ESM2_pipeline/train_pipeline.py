@@ -57,9 +57,10 @@ def esm2_pipeline(checkpoint,
                   pathogen,
                   output_dir):
 
-    checkpoint_name = checkpoint.split("/")[-1]
+    pathogen_name = pathogen.split('/')[-1]
+    checkpoint_name = checkpoint.split('/')[-1]
 
-    output = f"{output_dir.rstrip('/')}/{pathogen}/{checkpoint_name}_{mode}"
+    output = f"{output_dir}{pathogen.rstrip('/')}/{checkpoint_name}_{mode}"
 
     # Set random seeds
     set_seeds(42)
