@@ -400,25 +400,25 @@ class PerResidueClassifier(nn.Module):
         return self.net(x)
 
 
-def class_weighting_for_clf(lower_stacked):
-    # Convert to csv
-    df_lower_stacked = pd.read_csv(lower_stacked)
-
-    # Determine frequency of positive vs negative labels to be used to weight the loss function
-    neg_class = len(df_lower_stacked[df_lower_stacked['Class'] == 0])
-    pos_class = len(df_lower_stacked[df_lower_stacked['Class'] == 1])
-
-    # Total labelled
-    total = neg_class + pos_class
-
-    # Set the weight as the inverse proportion of the tota
-    neg_weight = torch.tensor([total / (2 * neg_class)])
-    pos_weight = torch.tensor([total / (2 * pos_class)])
-
-    # Concat tensors
-    weight = torch.cat([neg_weight, pos_weight])
-
-    return weight
+# def class_weighting_for_clf(lower_stacked):
+#     # Convert to csv
+#     df_lower_stacked = pd.read_csv(lower_stacked)
+#
+#     # Determine frequency of positive vs negative labels to be used to weight the loss function
+#     neg_class = len(df_lower_stacked[df_lower_stacked['Class'] == 0])
+#     pos_class = len(df_lower_stacked[df_lower_stacked['Class'] == 1])
+#
+#     # Total labelled
+#     total = neg_class + pos_class
+#
+#     # Set the weight as the inverse proportion of the tota
+#     neg_weight = torch.tensor([total / (2 * neg_class)])
+#     pos_weight = torch.tensor([total / (2 * pos_class)])
+#
+#     # Concat tensors
+#     weight = torch.cat([neg_weight, pos_weight])
+#
+#     return weight
 
 
 def train_one_epoch(model, train_dataloader, optimiser, loss_function):
