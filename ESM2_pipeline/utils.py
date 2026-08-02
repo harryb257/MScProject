@@ -405,8 +405,8 @@ def class_weighting_for_clf(lower_stacked):
     df_lower_stacked = pd.read_csv(lower_stacked)
 
     # Determine frequency of positive vs negative labels to be used to weight the loss function
-    neg_class = len(df_lower_stacked[df_lower_stacked['label'] == -1])
-    pos_class = len(df_lower_stacked[df_lower_stacked['label'] == 1])
+    neg_class = len(df_lower_stacked[df_lower_stacked['Class'] == -1])
+    pos_class = len(df_lower_stacked[df_lower_stacked['Class'] == 1])
 
     # Total labelled
     total = neg_class + pos_class
