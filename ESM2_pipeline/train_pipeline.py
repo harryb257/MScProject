@@ -65,6 +65,8 @@ def esm2_pipeline(checkpoint,
     # Local output directory
     local_output = Path(f'./output/{pathogen_name}/{checkpoint_name}_{mode}')
 
+    local_output.mkdir(parents=True, exist_ok=True)
+
     # S3 destination
     bucket = 'esm2-s3-bucket'
     prefix = f'results/{pathogen_name}/{checkpoint_name}_{mode}'
@@ -127,13 +129,15 @@ def esm2_pipeline(checkpoint,
         val_datasets = {}
 
         for key, df in train_splits.items():
-            train_datasets[key] = (datasets.Dataset.from_pandas(df).map(preprocess_higher_level,
-                                                                        remove_columns=df.columns.tolist()))
+            train_datasets[key] = (datasets.Dataset.from_pandas(df).map(
+                     		        lambda data: preprocess_higher_level(data, tokenizer),
+					remove_columns=df.columns.tolist()))
 
         for key, df in val_splits.items():
             if df is not None:
-                val_datasets[key] = (datasets.Dataset.from_pandas(df).map(preprocess_higher_level,
-                                                                          remove_columns=df.columns.tolist()))
+                val_datasets[key] = (datasets.Dataset.from_pandas(df).map(
+					lambda data: preprocess_higher_level(data, tokenizer),
+                                        remove_columns=df.columns.tolist()))
             else:
                 val_datasets[key] = None
 
@@ -390,7 +394,7 @@ def esm2_pipeline(checkpoint,
     )
 
     # Save results to csv
-    final_clf_trained.to_csv(f'{local_output}_clf_final_trained_metrics_by_epoch.csv')
+    final_clf_trained['history'].to_csv(f'{local_output}_clf_final_trained_metrics_by_epoch.csv')
 
     print('Final Trained Model Metrics', final_clf_trained)
 
