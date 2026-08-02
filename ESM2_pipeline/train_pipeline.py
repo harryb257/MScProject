@@ -170,7 +170,7 @@ def esm2_pipeline(checkpoint,
             model, tokenizer = load_esm_model_classification(checkpoint, num_labels, full_fine_tuning)
 
             training_args = TrainingArguments(
-                output_dir=f'{local_output}_training_arguments_val',
+                output_dir=Path(f'{local_output}_training_arguments_val'),
                 gradient_accumulation_steps=1,
                 per_device_train_batch_size=batch_size,
                 per_device_eval_batch_size=batch_size,
@@ -221,7 +221,7 @@ def esm2_pipeline(checkpoint,
         model, tokenizer = load_esm_model_classification(checkpoint, num_labels, full_fine_tuning)
 
         training_args = TrainingArguments(
-            output_dir = f'{local_output}_finetune_training_final',
+            output_dir = Path(f'{local_output}_finetune_training_final'),
             gradient_accumulation_steps=1,
             per_device_train_batch_size=batch_size,
             per_device_eval_batch_size=batch_size,
@@ -259,19 +259,19 @@ def esm2_pipeline(checkpoint,
         final_train_log_df = pd.DataFrame(final_train_logs)
         final_summary_df = pd.DataFrame(final_summary_logs)
 
-        model_output = f'{local_output}_fine_tuned_model'
+        model_output = Path(f'{local_output}_fine_tuned_model')
 
         # Explicitly save model
         trainer.save_model(model_output)
 
         # Save validation metrics
-        eval_log_df.to_csv(f'{local_output}_cv_validation_metrics.csv', index=False)
-        train_log_df.to_csv(f'{local_output}_cv_train_metrics.csv', index=False)
-        summary_df.to_csv(f'{local_output}_cv_eval_log.csv', index=False)
+        eval_log_df.to_csv(Path(f'{local_output}_cv_validation_metrics.csv', index=False))
+        train_log_df.to_csv(Path(f'{local_output}_cv_train_metrics.csv', index=False))
+        summary_df.to_csv(Path(f'{local_output}_cv_eval_log.csv', index=False))
 
         # Save final logs
-        final_train_log_df.to_csv(f'{local_output}_final_training_log.csv', index=False)
-        final_summary_df.to_csv(f'{local_output}_final_training_summary.csv', index=False)
+        final_train_log_df.to_csv(Path(f'{local_output}_final_training_log.csv', index=False))
+        final_summary_df.to_csv(Path(f'{local_output}_final_training_summary.csv', index=False))
 
     # -------------------------------------
 
@@ -302,7 +302,7 @@ def esm2_pipeline(checkpoint,
 
     if mode != 'base':
         # Load fine-tuned model
-        model = AutoModelForTokenClassification.from_pretrained(f'{local_output}_fine_tuned_model')
+        model = AutoModelForTokenClassification.from_pretrained(Path(f'{local_output}_fine_tuned_model'))
         model.eval()
         model.to(device)
 
@@ -357,7 +357,7 @@ def esm2_pipeline(checkpoint,
         'val_auc']].agg(['mean', 'std'])
 
     # Save to csv
-    clf_validation_avg_metrics.to_csv(f'{local_output}_clf_validation_avg_metrics.csv')
+    clf_validation_avg_metrics.to_csv(Path(f'{local_output}_clf_validation_avg_metrics.csv'))
 
     # Validation metrics per epoch by fold
     clf_validation_metrics = clf_trained[[
@@ -374,7 +374,7 @@ def esm2_pipeline(checkpoint,
         'val_auc']]
 
     # Save to csv
-    clf_validation_metrics.to_csv(f'{local_output}_clf_validation_metrics_by_fold.csv')
+    clf_validation_metrics.to_csv(Path(f'{local_output}_clf_validation_metrics_by_fold.csv'))
 
     best_auc_epochs = clf_validation_avg_metrics['val_auc'].idxmax(axis=0)['mean']
 
@@ -390,11 +390,11 @@ def esm2_pipeline(checkpoint,
             'model_state_dict': final_clf_trained['model_state_dict'],
             'epochs': final_clf_trained['epochs'],
         },
-        f'{local_output}_final_classifier.pt',
+        Path(f'{local_output}_final_classifier.pt'),
     )
 
     # Save results to csv
-    final_clf_trained['history'].to_csv(f'{local_output}_clf_final_trained_metrics_by_epoch.csv')
+    final_clf_trained['history'].to_csv(Path(f'{local_output}_clf_final_trained_metrics_by_epoch.csv'))
 
     print('Final Trained Model Metrics', final_clf_trained)
 
@@ -477,7 +477,7 @@ def esm2_pipeline(checkpoint,
     clf = PerResidueClassifier(embedding_dim).to(device)
 
     # Load trained clf model
-    checkpoint_data = torch.load(f'{local_output}_final_classifier.pt', weights_only=False)
+    checkpoint_data = torch.load(Path(f'{local_output}_final_classifier.pt', weights_only=False))
 
     # Load trained weights into clf
     clf.load_state_dict(checkpoint_data['model_state_dict'])
@@ -530,7 +530,7 @@ def esm2_pipeline(checkpoint,
     test_results = pd.DataFrame(data, index=np.array(np.arange(1,2)))
 
     # Save to csv
-    test_results.to_csv(f'{local_output}_test_predictions.csv')
+    test_results.to_csv(Path(f'{local_output}_test_predictions.csv'))
 
     print('test results', test_results)
 
