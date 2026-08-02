@@ -41,9 +41,8 @@ import s3fs
 
 from utils import (load_esm_model_classification, select_datasets, preprocess_csv,
     preprocess_higher_level, trainable_parameters_summary, compute_metrics, SequenceDataset, batch_create,
-     PerResidueClassifier, create_datasets_for_clf, train_classifier, train_final_classifier,
+    class_weighting_for_clf, PerResidueClassifier, create_datasets_for_clf, train_classifier, train_final_classifier,
     delete_unlabelled_rows, sliding_window, set_seeds)
-#class_weighting_for_clf,
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -308,26 +307,10 @@ def esm2_pipeline(checkpoint,
         full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model, mode)
 
 
+
     # Determine pos / neg weighting for loss function
-    df_lower_stacked = pd.read_csv(lower_level)
-
-    # Determine frequency of positive vs negative labels to be used to weight the loss function
-    neg_class = len(df_lower_stacked[df_lower_stacked['Class'] == 0])
-    pos_class = len(df_lower_stacked[df_lower_stacked['Class'] == 1])
-
-    # Total labelled
-    total = neg_class + pos_class
-
-    # Set the weight as the inverse proportion of the tota
-    neg_weight = torch.tensor([total / (2 * neg_class)])
-    pos_weight = torch.tensor([total / (2 * pos_class)])
-
-    # Concat tensors
-    weight = torch.cat([neg_weight, pos_weight])
-
-    # weight = class_weighting_for_clf(lower_level)
+    weight = class_weighting_for_clf(lower_level)
     weight = weight.to(device)
-
 
 
     # Create a parameter for the final hidden layer dim of the model to use as the classifier input dimension
@@ -341,6 +324,7 @@ def esm2_pipeline(checkpoint,
 
     # Instantiate weighted cross-entropy loss function, ignores positions with mask -100
     loss_fcn = nn.CrossEntropyLoss(weight=weight, ignore_index=-100)
+
 
 
 
