@@ -1,30 +1,21 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
-import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_sequence
 import torch.optim as optim
 
 from transformers import (
-    AutoModel,
     AutoTokenizer,
     AutoModelForTokenClassification,
-    TrainingArguments,
-    Trainer,
-    DataCollatorForTokenClassification,
-    DataCollatorWithPadding,
     set_seed
 )
 
-from peft import LoraModel, LoraConfig, inject_adapter_in_model
-import datasets
+from peft import LoraConfig, inject_adapter_in_model
 
 import esm
 
 import pandas as pd
 import numpy as np
-
-import math
 import random
 
 from sklearn.metrics import (
@@ -35,9 +26,7 @@ from sklearn.metrics import (
     matthews_corrcoef,
     roc_auc_score)
 
-from pathlib import Path
 from pathlib import PurePosixPath
-import s3fs
 
 
 # Set seeds for reproducibility

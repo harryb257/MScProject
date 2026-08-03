@@ -1,9 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
-import torch.nn.functional as F
-from torch.nn.utils.rnn import pad_sequence
-import torch.optim as optim
 
 from transformers import (
     AutoModel,
@@ -12,18 +8,14 @@ from transformers import (
     TrainingArguments,
     Trainer,
     DataCollatorForTokenClassification,
-    DataCollatorWithPadding,
-    set_seed
 )
 
-from peft import LoraModel, LoraConfig, inject_adapter_in_model
 import datasets
 
 import esm
 
 import pandas as pd
 import numpy as np
-import math
 import random
 
 from sklearn.metrics import (
@@ -35,11 +27,9 @@ from sklearn.metrics import (
     roc_auc_score)
 
 from pathlib import Path
-from pathlib import PurePosixPath
 import s3fs
 import boto3
 import gc
-
 
 from utils import (load_esm_model_classification, select_datasets, preprocess_csv,
     preprocess_higher_level, trainable_parameters_summary, compute_metrics, SequenceDataset, batch_create,
@@ -510,8 +500,7 @@ def esm2_pipeline(checkpoint,
             except Exception as e:
                 print("Upload failed:", e)
 
-    # Free up memory 
-    del trainer, model
+    # Free up memory
     gc.collect()
     torch.cuda.empty_cache()
 
