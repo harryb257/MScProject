@@ -15,7 +15,6 @@ MODES = [
 ]
 
 pathogens = [
-   ,
     's3://esm2-s3-bucket/datasets/Bunyaviricetes/',
     's3://esm2-s3-bucket/datasets/Campylobacter jejuni/',
     's3://esm2-s3-bucket/datasets/Clostridioides difficile/',
