@@ -55,8 +55,7 @@ def esm2_pipeline(checkpoint,
                   batch_size,
                   num_fine_tune_epochs,
                   clf_epochs,
-                  pathogen,
-                  output_dir):
+                  pathogen):
 
     # Extract names
     pathogen_name = pathogen.rstrip('/').split('/')[-1]
@@ -68,7 +67,7 @@ def esm2_pipeline(checkpoint,
     local_output.mkdir(parents=True, exist_ok=True)
 
     # S3 destination
-    bucket = 'esm2-s3-bucket/'
+    bucket = 'esm2-s3-bucket'
     prefix = f'results/{pathogen_name}/{checkpoint_name}_{mode}'
     s3 = boto3.client('s3')
 
@@ -477,7 +476,7 @@ def esm2_pipeline(checkpoint,
     clf = PerResidueClassifier(embedding_dim).to(device)
 
     # Load trained clf model
-    checkpoint_data = torch.load(Path(f'{local_output}_final_classifier.pt', weights_only=False))
+    checkpoint_data = torch.load(Path(f'{local_output}_final_classifier.pt'), weights_only=False)
 
     # Load trained weights into clf
     clf.load_state_dict(checkpoint_data['model_state_dict'])
@@ -534,11 +533,14 @@ def esm2_pipeline(checkpoint,
 
     print('test results', test_results)
 
+    local_output2 = Path("./output")
 
     # Upload everything under local_output
-    for file in local_output.rglob("*"):
+    for file in local_output2.rglob("*"):
         if file.is_file():
-            key = f'{prefix}/{file.relative_to(local_output).as_posix()}'
+            print('file', file)
+            key = f'{prefix}/{file.relative_to(local_output2).as_posix()}'
+            print('key',key)
             s3.upload_file(str(file), bucket, key)
 
 
