@@ -15,9 +15,20 @@ MODES = [
 ]
 
 pathogens = [
-    's3://esm2-s3-bucket/datasets/Orthopoxvirus',
+   ,
     's3://esm2-s3-bucket/datasets/Bunyaviricetes/',
-    's3://esm2-s3-bucket/datasets/Campylobacter jejuni/']
+    's3://esm2-s3-bucket/datasets/Campylobacter jejuni/',
+    's3://esm2-s3-bucket/datasets/Clostridioides difficile/',
+    's3://esm2-s3-bucket/datasets/Dengue virus/',
+    's3://esm2-s3-bucket/datasets/Legionellales/',
+    's3://esm2-s3-bucket/datasets/Mycobacterium leprae/',
+    's3://esm2-s3-bucket/datasets/Mycoplasmoidaceae'/,
+    's3://esm2-s3-bucket/datasets/Neisseria gonorrhoeae/',
+    's3://esm2-s3-bucket/datasets/Orthoparamyxovirinae/',
+    's3://esm2-s3-bucket/datasets/Orthopoxvirus',
+    's3://esm2-s3-bucket/datasets/Pasteurellaceae/',
+    's3://esm2-s3-bucket/datasets/Yellow fever virus/'
+    's3://esm2-s3-bucket/datasets/Yersinia pestis/']
 
 results = []
 
@@ -33,7 +44,6 @@ clf_epochs = 20
 for pathogen in pathogens:
     for checkpoint in CHECKPOINTS:
         for mode in MODES:
-
             print(f"Running {pathogen} - {checkpoint} - {mode}")
 
             result = esm2_pipeline(
