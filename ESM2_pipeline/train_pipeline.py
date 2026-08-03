@@ -36,6 +36,8 @@ from utils import (load_esm_model_classification, select_datasets, preprocess_cs
     class_weighting_for_clf, PerResidueClassifier, create_datasets_for_clf, train_classifier, train_final_classifier,
     delete_unlabelled_rows, sliding_window, set_seeds)
 
+from peft import PeftModel, PeftConfig
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def esm2_pipeline(checkpoint,
@@ -291,8 +293,26 @@ def esm2_pipeline(checkpoint,
     lower_train_all = SequenceDataset(lower_train_all)
 
     if mode != 'base':
-        # Load fine-tuned model
-        model = AutoModelForTokenClassification.from_pretrained(Path(f'{local_output}_fine_tuned_model'))
+        if mode == 'full':
+            # Load fine-tuned model
+            model = AutoModelForTokenClassification.from_pretrained(Path(f'{local_output}_fine_tuned_model'))
+            model.eval()
+            model.to(device)
+        elif mode == 'LoRA':
+            base_model = AutoModelForTokenClassification.from_pretrained(checkpoint, num_labels=num_labels)
+            config = PeftConfig.from_pretrained(peft_model_id)
+            model = PeftModel.from_pretrained(base_model, peft_model_id)
+            model.eval()
+            model.to(device)
+
+    if mode != 'base':
+        if mode == 'full':
+            model = AutoModelForTokenClassification.from_pretrained(Path(f'{local_output}_fine_tuned_model'))
+
+        elif mode == 'LoRA':
+            base_model = AutoModelForTokenClassification.from_pretrained(checkpoint, num_labels=num_labels)
+            model = PeftModel.from_pretrained(base_model, Path(f'{local_output}_fine_tuned_model'))
+
         model.eval()
         model.to(device)
 

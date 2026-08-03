@@ -10,7 +10,7 @@ from transformers import (
     set_seed
 )
 
-from peft import LoraConfig, inject_adapter_in_model
+from peft import LoraConfig, get_peft_model
 
 import esm
 
@@ -55,7 +55,7 @@ def load_esm_model_classification(checkpoint, num_labels, full):
     else:
         peft_config = LoraConfig(r=4, lora_alpha=1, bias="all", target_modules=["query", "key", "value", "dense"])
 
-        model = inject_adapter_in_model(peft_config, model)
+        model = get_peft_model(model, peft_config)
 
         # Unfreeze the prediction head for LoRA (not required for full fine-tuning as head automatically unfrozen)
         for (param_name, param) in model.classifier.named_parameters():
