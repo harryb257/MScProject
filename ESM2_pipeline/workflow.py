@@ -21,10 +21,10 @@ pathogens = [
     's3://esm2-s3-bucket/datasets/Dengue virus/',
     's3://esm2-s3-bucket/datasets/Legionellales/',
     's3://esm2-s3-bucket/datasets/Mycobacterium leprae/',
-    's3://esm2-s3-bucket/datasets/Mycoplasmoidaceae'/,
+    's3://esm2-s3-bucket/datasets/Mycoplasmoidaceae/',
     's3://esm2-s3-bucket/datasets/Neisseria gonorrhoeae/',
     's3://esm2-s3-bucket/datasets/Orthoparamyxovirinae/',
-    's3://esm2-s3-bucket/datasets/Orthopoxvirus',
+    's3://esm2-s3-bucket/datasets/Orthopoxvirus/',
     's3://esm2-s3-bucket/datasets/Pasteurellaceae/',
     's3://esm2-s3-bucket/datasets/Yellow fever virus/'
     's3://esm2-s3-bucket/datasets/Yersinia pestis/']
