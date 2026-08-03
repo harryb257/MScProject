@@ -5,7 +5,7 @@ CHECKPOINTS = [
     'facebook/esm2_t12_35M_UR50D',
     'facebook/esm2_t30_150M_UR50D',
     'facebook/esm2_t33_650M_UR50D',
-    # 'facebook/esm2_t36_3B_UR50D',
+    #'facebook/esm2_t36_3B_UR50D',
 ]
 
 MODES = [
@@ -15,11 +15,9 @@ MODES = [
 ]
 
 pathogens = [
-    # 's3://esm2-s3-bucket/datasets/orthopox',
+    's3://esm2-s3-bucket/datasets/Orthopoxvirus',
     's3://esm2-s3-bucket/datasets/Bunyaviricetes/',
     's3://esm2-s3-bucket/datasets/Campylobacter jejuni/']
-
-output_dir = 's3://esm2-s3-bucket/results/'
 
 results = []
 
@@ -47,10 +45,10 @@ for pathogen in pathogens:
                 batch_size=batch_size,
                 num_fine_tune_epochs=num_fine_tune_epochs,
                 clf_epochs=clf_epochs,
-                pathogen=pathogen,
-                output_dir=output_dir
+                pathogen=pathogen
             )
 
             results.append(result)
+            print('Runs completed:', results)
 
 print("All experiments completed")
