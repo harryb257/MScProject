@@ -292,17 +292,6 @@ def esm2_pipeline(checkpoint,
     # Create dataset
     lower_train_all = SequenceDataset(lower_train_all)
 
-    if mode != 'base':
-        if mode == 'full':
-            # Load fine-tuned model
-            model = AutoModelForTokenClassification.from_pretrained(Path(f'{local_output}_fine_tuned_model'))
-            model.eval()
-            model.to(device)
-        elif mode == 'LoRA':
-            base_model = AutoModelForTokenClassification.from_pretrained(checkpoint, num_labels=num_labels)
-            model = PeftModel.from_pretrained(base_model, Path(f'{local_output}_fine_tuned_model'))
-            model.eval()
-            model.to(device)
 
     if mode != 'base':
         if mode == 'full':
