@@ -166,6 +166,9 @@ def preprocess_csv(csv_file, return_origin_df_len=False):
     """
     preprocessed_df = pd.read_csv(csv_file)
 
+    # Drop rows where 'Info_split' == 'NA'
+    preprocessed_df = preprocessed_df[preprocessed_df['Info_split'] != 'NA']
+
     # Mask n/a values with -100
     preprocessed_df['Class'] = preprocessed_df['Class'].fillna(-100).astype('int32')
     preprocessed_df['Class'] = preprocessed_df['Class'].replace(-1, 0)
