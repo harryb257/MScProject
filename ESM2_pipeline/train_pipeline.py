@@ -516,9 +516,24 @@ def esm2_pipeline(checkpoint,
             print('S3 key', key)
             try:
                 s3.upload_file(str(file), bucket, key)
-                print("Upload complete:", key)
+                print('Upload complete:', key)
+
+                # Delete local file after successful upload
+                file.unlink()
+                print('Deleted local file:', file)
+
             except Exception as e:
-                print("Upload failed:", e)
+                print('Upload failed:', e)
+
+    # Remove empty directories
+    for d in sorted(local_output2.rglob('*'), reverse=True):
+        if d.is_dir():
+            try:
+                d.rmdir()
+            except OSError:
+                # Directory not empty
+                pass
+
 
     # Free up memory
     gc.collect()
