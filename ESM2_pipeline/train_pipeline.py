@@ -23,7 +23,6 @@ import esm
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import math
 import random
 
@@ -39,6 +38,8 @@ from pathlib import Path
 from pathlib import PurePosixPath
 import s3fs
 import boto3
+import gc
+
 
 from utils import (load_esm_model_classification, select_datasets, preprocess_csv,
     preprocess_higher_level, trainable_parameters_summary, compute_metrics, SequenceDataset, batch_create,
@@ -68,7 +69,7 @@ def esm2_pipeline(checkpoint,
 
     # S3 destination
     bucket = 'esm2-s3-bucket'
-    prefix = f'results/{pathogen_name}/{checkpoint_name}_{mode}'
+    prefix = f'results'
     s3 = boto3.client('s3')
 
     # Set random seeds
@@ -397,49 +398,11 @@ def esm2_pipeline(checkpoint,
 
     print('Final Trained Model Metrics', final_clf_trained)
 
-    # Plot mean loss per epoch
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('train_loss','mean')],
-            label='Training loss')
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('val_loss','mean')],
-            label='Validation loss')
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('train_acc','mean')],
-            label='Training accuracy (%)')
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('val_acc','mean')],
-            label='Validation accuracy (%)')
-    ax.set_xlabel('Epoch')
-    ax.set_ylabel('Loss / % Accuracy')
-    ax.set_title('Training, Validation Loss, % Accuracy')
-    ax.set_xlim(0, len(clf_validation_avg_metrics)+1)
 
-    ax.legend()
-    plt.show()
-
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('val_precision','mean')],
-            label='Validation Precision')
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('val_recall','mean')],
-            label='Validation Recall')
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('val_f1','mean')],
-            label='Validation F1')
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('val_mcc','mean')],
-            label='Validation MCC')
-    ax.plot(range(1, len(clf_validation_avg_metrics)+1), clf_validation_avg_metrics[('val_auc','mean')],
-            label='Validation AUC')
-    ax.set_xlabel('Epoch')
-    ax.set_ylabel('Precision / Recall / F1 / MCC / AUC')
-    ax.set_title('Validation Precision, Recall, F1, MCC, AUC per epoch - folds mean')
-    ax.set_xlim(0, len(clf_validation_avg_metrics)+1)
-
-    ax.legend()
-    plt.show()
 
 
 
     # ------------------------------------------ Predictions on test data ------------------------------------------
-    # ESM2 model (fine-tuned, LoRa or base) as embedder, then classify using pre-trained clf
 
     # Preprocess training data
     test_df = pd.read_csv(target)
@@ -538,10 +501,19 @@ def esm2_pipeline(checkpoint,
     # Upload everything under local_output
     for file in local_output2.rglob("*"):
         if file.is_file():
-            print('file', file)
             key = f'{prefix}/{file.relative_to(local_output2).as_posix()}'
-            print('key',key)
-            s3.upload_file(str(file), bucket, key)
+            print('uploading', file)
+            print('S3 key', key)
+            try:
+                s3.upload_file(str(file), bucket, key)
+                print("Upload complete:", key)
+            except Exception as e:
+                print("Upload failed:", e)
+
+    # Free up memory 
+    del trainer, model
+    gc.collect()
+    torch.cuda.empty_cache()
 
 
     return {
