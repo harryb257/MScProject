@@ -68,7 +68,7 @@ def esm2_pipeline(checkpoint,
     local_output.mkdir(parents=True, exist_ok=True)
 
     # S3 destination
-    bucket = 'esm2-s3-bucket'
+    bucket = 'esm2-s3-bucket/'
     prefix = f'results/{pathogen_name}/{checkpoint_name}_{mode}'
     s3 = boto3.client('s3')
 
@@ -130,14 +130,14 @@ def esm2_pipeline(checkpoint,
 
         for key, df in train_splits.items():
             train_datasets[key] = (datasets.Dataset.from_pandas(df).map(
-                     		        lambda data: preprocess_higher_level(data, tokenizer),
-					remove_columns=df.columns.tolist()))
+                     		        lambda data: preprocess_higher_level(tokenizer, data),
+					                remove_columns=df.columns.tolist()))
 
         for key, df in val_splits.items():
             if df is not None:
                 val_datasets[key] = (datasets.Dataset.from_pandas(df).map(
-					lambda data: preprocess_higher_level(data, tokenizer),
-                                        remove_columns=df.columns.tolist()))
+					                lambda data: preprocess_higher_level(tokenizer, data),
+                                    remove_columns=df.columns.tolist()))
             else:
                 val_datasets[key] = None
 
@@ -533,7 +533,6 @@ def esm2_pipeline(checkpoint,
     test_results.to_csv(Path(f'{local_output}_test_predictions.csv'))
 
     print('test results', test_results)
-
 
 
     # Upload everything under local_output
