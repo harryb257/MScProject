@@ -300,8 +300,7 @@ def esm2_pipeline(checkpoint,
             model.to(device)
         elif mode == 'LoRA':
             base_model = AutoModelForTokenClassification.from_pretrained(checkpoint, num_labels=num_labels)
-            config = PeftConfig.from_pretrained(peft_model_id)
-            model = PeftModel.from_pretrained(base_model, peft_model_id)
+            model = PeftModel.from_pretrained(base_model, Path(f'{local_output}_fine_tuned_model'))
             model.eval()
             model.to(device)
 
