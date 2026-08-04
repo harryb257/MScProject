@@ -6,7 +6,7 @@ CHECKPOINTS = [
     # 'facebook/esm2_t12_35M_UR50D',
     # 'facebook/esm2_t30_150M_UR50D',
     'facebook/esm2_t33_650M_UR50D',
-    'facebook/esm2_t36_3B_UR50D',
+    # 'facebook/esm2_t36_3B_UR50D',
 ]
 
 MODES = [
