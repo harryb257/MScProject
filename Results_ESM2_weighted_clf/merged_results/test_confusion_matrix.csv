@@ -1,0 +1,217 @@
+pathogen,checkpoint,model size,mode,Predicted 0,Predicted 1
+Orthopoxvirus,esm2_t12_35M_UR50D,35M,full,211,330
+Orthopoxvirus,esm2_t12_35M_UR50D,35M,full,21,366
+Orthopoxvirus,esm2_t6_8M_UR50D,8M,LoRA,228,313
+Orthopoxvirus,esm2_t6_8M_UR50D,8M,LoRA,100,287
+Orthopoxvirus,esm2_t12_35M_UR50D,35M,base,376,165
+Orthopoxvirus,esm2_t12_35M_UR50D,35M,base,130,257
+Orthopoxvirus,esm2_t30_150M_UR50D,150M,LoRA,373,168
+Orthopoxvirus,esm2_t30_150M_UR50D,150M,LoRA,183,204
+Orthopoxvirus,esm2_t6_8M_UR50D,8M,full,274,267
+Orthopoxvirus,esm2_t6_8M_UR50D,8M,full,144,243
+Orthopoxvirus,esm2_t6_8M_UR50D,8M,base,307,234
+Orthopoxvirus,esm2_t6_8M_UR50D,8M,base,165,222
+Orthopoxvirus,esm2_t12_35M_UR50D,35M,LoRA,133,408
+Orthopoxvirus,esm2_t12_35M_UR50D,35M,LoRA,134,253
+Orthopoxvirus,esm2_t30_150M_UR50D,150M,base,299,242
+Orthopoxvirus,esm2_t30_150M_UR50D,150M,base,119,268
+Orthopoxvirus,esm2_t30_150M_UR50D,150M,full,380,161
+Orthopoxvirus,esm2_t30_150M_UR50D,150M,full,158,229
+Clostridioides difficile,esm2_t12_35M_UR50D,35M,full,811,1291
+Clostridioides difficile,esm2_t12_35M_UR50D,35M,full,166,308
+Clostridioides difficile,esm2_t6_8M_UR50D,8M,LoRA,247,1855
+Clostridioides difficile,esm2_t6_8M_UR50D,8M,LoRA,86,388
+Clostridioides difficile,esm2_t12_35M_UR50D,35M,base,148,1954
+Clostridioides difficile,esm2_t12_35M_UR50D,35M,base,46,428
+Clostridioides difficile,esm2_t30_150M_UR50D,150M,LoRA,186,1916
+Clostridioides difficile,esm2_t30_150M_UR50D,150M,LoRA,50,424
+Clostridioides difficile,esm2_t6_8M_UR50D,8M,full,0,2102
+Clostridioides difficile,esm2_t6_8M_UR50D,8M,full,0,474
+Clostridioides difficile,esm2_t6_8M_UR50D,8M,base,446,1656
+Clostridioides difficile,esm2_t6_8M_UR50D,8M,base,128,346
+Clostridioides difficile,esm2_t12_35M_UR50D,35M,LoRA,113,1989
+Clostridioides difficile,esm2_t12_35M_UR50D,35M,LoRA,46,428
+Clostridioides difficile,esm2_t30_150M_UR50D,150M,base,242,1860
+Clostridioides difficile,esm2_t30_150M_UR50D,150M,base,56,418
+Clostridioides difficile,esm2_t30_150M_UR50D,150M,full,1444,658
+Clostridioides difficile,esm2_t30_150M_UR50D,150M,full,308,166
+Pasteurellaceae,esm2_t12_35M_UR50D,35M,full,0,642
+Pasteurellaceae,esm2_t12_35M_UR50D,35M,full,34,818
+Pasteurellaceae,esm2_t6_8M_UR50D,8M,LoRA,106,536
+Pasteurellaceae,esm2_t6_8M_UR50D,8M,LoRA,409,443
+Pasteurellaceae,esm2_t12_35M_UR50D,35M,base,45,597
+Pasteurellaceae,esm2_t12_35M_UR50D,35M,base,107,745
+Pasteurellaceae,esm2_t30_150M_UR50D,150M,LoRA,187,455
+Pasteurellaceae,esm2_t30_150M_UR50D,150M,LoRA,452,400
+Pasteurellaceae,esm2_t6_8M_UR50D,8M,full,0,642
+Pasteurellaceae,esm2_t6_8M_UR50D,8M,full,0,852
+Pasteurellaceae,esm2_t6_8M_UR50D,8M,base,142,500
+Pasteurellaceae,esm2_t6_8M_UR50D,8M,base,387,465
+Pasteurellaceae,esm2_t12_35M_UR50D,35M,LoRA,92,550
+Pasteurellaceae,esm2_t12_35M_UR50D,35M,LoRA,306,546
+Pasteurellaceae,esm2_t30_150M_UR50D,150M,base,260,382
+Pasteurellaceae,esm2_t30_150M_UR50D,150M,base,479,373
+Pasteurellaceae,esm2_t30_150M_UR50D,150M,full,206,436
+Pasteurellaceae,esm2_t30_150M_UR50D,150M,full,279,573
+Orthoparamyxovirinae,esm2_t12_35M_UR50D,35M,full,64,1302
+Orthoparamyxovirinae,esm2_t12_35M_UR50D,35M,full,336,774
+Orthoparamyxovirinae,esm2_t6_8M_UR50D,8M,LoRA,560,806
+Orthoparamyxovirinae,esm2_t6_8M_UR50D,8M,LoRA,419,691
+Orthoparamyxovirinae,esm2_t12_35M_UR50D,35M,base,278,1088
+Orthoparamyxovirinae,esm2_t12_35M_UR50D,35M,base,230,880
+Orthoparamyxovirinae,esm2_t30_150M_UR50D,150M,LoRA,86,1280
+Orthoparamyxovirinae,esm2_t30_150M_UR50D,150M,LoRA,119,991
+Orthoparamyxovirinae,esm2_t6_8M_UR50D,8M,full,895,471
+Orthoparamyxovirinae,esm2_t6_8M_UR50D,8M,full,550,560
+Orthoparamyxovirinae,esm2_t6_8M_UR50D,8M,base,424,942
+Orthoparamyxovirinae,esm2_t6_8M_UR50D,8M,base,365,745
+Orthoparamyxovirinae,esm2_t12_35M_UR50D,35M,LoRA,36,1330
+Orthoparamyxovirinae,esm2_t12_35M_UR50D,35M,LoRA,159,951
+Orthoparamyxovirinae,esm2_t30_150M_UR50D,150M,base,197,1169
+Orthoparamyxovirinae,esm2_t30_150M_UR50D,150M,base,282,828
+Orthoparamyxovirinae,esm2_t30_150M_UR50D,150M,full,418,948
+Orthoparamyxovirinae,esm2_t30_150M_UR50D,150M,full,385,725
+Legionellales,esm2_t12_35M_UR50D,35M,full,30,180
+Legionellales,esm2_t12_35M_UR50D,35M,full,0,281
+Legionellales,esm2_t6_8M_UR50D,8M,LoRA,31,179
+Legionellales,esm2_t6_8M_UR50D,8M,LoRA,20,261
+Legionellales,esm2_t12_35M_UR50D,35M,base,24,186
+Legionellales,esm2_t12_35M_UR50D,35M,base,15,266
+Legionellales,esm2_t30_150M_UR50D,150M,LoRA,41,169
+Legionellales,esm2_t30_150M_UR50D,150M,LoRA,29,252
+Legionellales,esm2_t6_8M_UR50D,8M,full,156,54
+Legionellales,esm2_t6_8M_UR50D,8M,full,243,38
+Legionellales,esm2_t6_8M_UR50D,8M,base,36,174
+Legionellales,esm2_t6_8M_UR50D,8M,base,12,269
+Legionellales,esm2_t12_35M_UR50D,35M,LoRA,46,164
+Legionellales,esm2_t12_35M_UR50D,35M,LoRA,21,260
+Legionellales,esm2_t30_150M_UR50D,150M,base,34,176
+Legionellales,esm2_t30_150M_UR50D,150M,base,12,269
+Legionellales,esm2_t30_150M_UR50D,150M,full,0,210
+Legionellales,esm2_t30_150M_UR50D,150M,full,0,281
+Yersinia pestis,esm2_t12_35M_UR50D,35M,full,370,1
+Yersinia pestis,esm2_t12_35M_UR50D,35M,full,283,18
+Yersinia pestis,esm2_t6_8M_UR50D,8M,LoRA,106,265
+Yersinia pestis,esm2_t6_8M_UR50D,8M,LoRA,44,257
+Yersinia pestis,esm2_t12_35M_UR50D,35M,base,127,244
+Yersinia pestis,esm2_t12_35M_UR50D,35M,base,38,263
+Yersinia pestis,esm2_t30_150M_UR50D,150M,LoRA,107,264
+Yersinia pestis,esm2_t30_150M_UR50D,150M,LoRA,29,272
+Yersinia pestis,esm2_t6_8M_UR50D,8M,full,67,304
+Yersinia pestis,esm2_t6_8M_UR50D,8M,full,106,195
+Yersinia pestis,esm2_t6_8M_UR50D,8M,base,129,242
+Yersinia pestis,esm2_t6_8M_UR50D,8M,base,38,263
+Yersinia pestis,esm2_t12_35M_UR50D,35M,LoRA,170,201
+Yersinia pestis,esm2_t12_35M_UR50D,35M,LoRA,48,253
+Yersinia pestis,esm2_t30_150M_UR50D,150M,base,146,225
+Yersinia pestis,esm2_t30_150M_UR50D,150M,base,44,257
+Yersinia pestis,esm2_t30_150M_UR50D,150M,full,0,371
+Yersinia pestis,esm2_t30_150M_UR50D,150M,full,0,301
+Campylobacter jejuni,esm2_t12_35M_UR50D,35M,full,1064,1463
+Campylobacter jejuni,esm2_t12_35M_UR50D,35M,full,391,94
+Campylobacter jejuni,esm2_t6_8M_UR50D,8M,LoRA,1070,1457
+Campylobacter jejuni,esm2_t6_8M_UR50D,8M,LoRA,370,115
+Campylobacter jejuni,esm2_t12_35M_UR50D,35M,base,1074,1453
+Campylobacter jejuni,esm2_t12_35M_UR50D,35M,base,352,133
+Campylobacter jejuni,esm2_t30_150M_UR50D,150M,LoRA,747,1780
+Campylobacter jejuni,esm2_t30_150M_UR50D,150M,LoRA,349,136
+Campylobacter jejuni,esm2_t6_8M_UR50D,8M,full,0,2527
+Campylobacter jejuni,esm2_t6_8M_UR50D,8M,full,0,485
+Campylobacter jejuni,esm2_t6_8M_UR50D,8M,base,857,1670
+Campylobacter jejuni,esm2_t6_8M_UR50D,8M,base,298,187
+Campylobacter jejuni,esm2_t12_35M_UR50D,35M,LoRA,410,2117
+Campylobacter jejuni,esm2_t12_35M_UR50D,35M,LoRA,200,285
+Campylobacter jejuni,esm2_t30_150M_UR50D,150M,base,1086,1441
+Campylobacter jejuni,esm2_t30_150M_UR50D,150M,base,378,107
+Campylobacter jejuni,esm2_t30_150M_UR50D,150M,full,0,2527
+Campylobacter jejuni,esm2_t30_150M_UR50D,150M,full,0,485
+Dengue virus,esm2_t12_35M_UR50D,35M,full,2092,19346
+Dengue virus,esm2_t12_35M_UR50D,35M,full,3591,35092
+Dengue virus,esm2_t6_8M_UR50D,8M,LoRA,6078,15360
+Dengue virus,esm2_t6_8M_UR50D,8M,LoRA,7977,30706
+Dengue virus,esm2_t12_35M_UR50D,35M,base,7253,14185
+Dengue virus,esm2_t12_35M_UR50D,35M,base,9702,28981
+Dengue virus,esm2_t30_150M_UR50D,150M,LoRA,4743,16695
+Dengue virus,esm2_t30_150M_UR50D,150M,LoRA,6057,32626
+Dengue virus,esm2_t6_8M_UR50D,8M,full,4653,16785
+Dengue virus,esm2_t6_8M_UR50D,8M,full,7049,31634
+Dengue virus,esm2_t6_8M_UR50D,8M,base,6067,15371
+Dengue virus,esm2_t6_8M_UR50D,8M,base,7902,30781
+Dengue virus,esm2_t12_35M_UR50D,35M,LoRA,8698,12740
+Dengue virus,esm2_t12_35M_UR50D,35M,LoRA,12776,25907
+Dengue virus,esm2_t30_150M_UR50D,150M,base,6915,14523
+Dengue virus,esm2_t30_150M_UR50D,150M,base,8845,29838
+Dengue virus,esm2_t30_150M_UR50D,150M,full,84,21354
+Dengue virus,esm2_t30_150M_UR50D,150M,full,206,38477
+Mycoplasmoidaceae,esm2_t12_35M_UR50D,35M,full,692,111
+Mycoplasmoidaceae,esm2_t12_35M_UR50D,35M,full,376,200
+Mycoplasmoidaceae,esm2_t6_8M_UR50D,8M,LoRA,79,724
+Mycoplasmoidaceae,esm2_t6_8M_UR50D,8M,LoRA,256,320
+Mycoplasmoidaceae,esm2_t12_35M_UR50D,35M,base,98,705
+Mycoplasmoidaceae,esm2_t12_35M_UR50D,35M,base,280,296
+Mycoplasmoidaceae,esm2_t30_150M_UR50D,150M,LoRA,271,532
+Mycoplasmoidaceae,esm2_t30_150M_UR50D,150M,LoRA,510,66
+Mycoplasmoidaceae,esm2_t6_8M_UR50D,8M,full,0,803
+Mycoplasmoidaceae,esm2_t6_8M_UR50D,8M,full,0,576
+Mycoplasmoidaceae,esm2_t6_8M_UR50D,8M,base,213,590
+Mycoplasmoidaceae,esm2_t6_8M_UR50D,8M,base,313,263
+Mycoplasmoidaceae,esm2_t12_35M_UR50D,35M,LoRA,149,654
+Mycoplasmoidaceae,esm2_t12_35M_UR50D,35M,LoRA,337,239
+Mycoplasmoidaceae,esm2_t30_150M_UR50D,150M,base,264,539
+Mycoplasmoidaceae,esm2_t30_150M_UR50D,150M,base,345,231
+Mycoplasmoidaceae,esm2_t30_150M_UR50D,150M,full,0,803
+Mycoplasmoidaceae,esm2_t30_150M_UR50D,150M,full,0,576
+Neisseria gonorrhoeae,esm2_t12_35M_UR50D,35M,full,0,983
+Neisseria gonorrhoeae,esm2_t12_35M_UR50D,35M,full,0,184
+Neisseria gonorrhoeae,esm2_t6_8M_UR50D,8M,LoRA,39,944
+Neisseria gonorrhoeae,esm2_t6_8M_UR50D,8M,LoRA,35,149
+Neisseria gonorrhoeae,esm2_t12_35M_UR50D,35M,base,46,937
+Neisseria gonorrhoeae,esm2_t12_35M_UR50D,35M,base,26,158
+Neisseria gonorrhoeae,esm2_t30_150M_UR50D,150M,LoRA,45,938
+Neisseria gonorrhoeae,esm2_t30_150M_UR50D,150M,LoRA,25,159
+Neisseria gonorrhoeae,esm2_t6_8M_UR50D,8M,full,0,983
+Neisseria gonorrhoeae,esm2_t6_8M_UR50D,8M,full,0,184
+Neisseria gonorrhoeae,esm2_t6_8M_UR50D,8M,base,54,929
+Neisseria gonorrhoeae,esm2_t6_8M_UR50D,8M,base,23,161
+Neisseria gonorrhoeae,esm2_t12_35M_UR50D,35M,LoRA,12,971
+Neisseria gonorrhoeae,esm2_t12_35M_UR50D,35M,LoRA,22,162
+Neisseria gonorrhoeae,esm2_t30_150M_UR50D,150M,base,20,963
+Neisseria gonorrhoeae,esm2_t30_150M_UR50D,150M,base,18,166
+Neisseria gonorrhoeae,esm2_t30_150M_UR50D,150M,full,90,893
+Neisseria gonorrhoeae,esm2_t30_150M_UR50D,150M,full,74,110
+Mycobacterium leprae,esm2_t12_35M_UR50D,35M,full,329,744
+Mycobacterium leprae,esm2_t12_35M_UR50D,35M,full,161,394
+Mycobacterium leprae,esm2_t6_8M_UR50D,8M,LoRA,8,1065
+Mycobacterium leprae,esm2_t6_8M_UR50D,8M,LoRA,26,529
+Mycobacterium leprae,esm2_t12_35M_UR50D,35M,base,96,977
+Mycobacterium leprae,esm2_t12_35M_UR50D,35M,base,104,451
+Mycobacterium leprae,esm2_t30_150M_UR50D,150M,LoRA,523,550
+Mycobacterium leprae,esm2_t30_150M_UR50D,150M,LoRA,238,317
+Mycobacterium leprae,esm2_t6_8M_UR50D,8M,full,0,1073
+Mycobacterium leprae,esm2_t6_8M_UR50D,8M,full,0,555
+Mycobacterium leprae,esm2_t6_8M_UR50D,8M,base,51,1022
+Mycobacterium leprae,esm2_t6_8M_UR50D,8M,base,44,511
+Mycobacterium leprae,esm2_t12_35M_UR50D,35M,LoRA,32,1041
+Mycobacterium leprae,esm2_t12_35M_UR50D,35M,LoRA,62,493
+Mycobacterium leprae,esm2_t30_150M_UR50D,150M,base,26,1047
+Mycobacterium leprae,esm2_t30_150M_UR50D,150M,base,23,532
+Mycobacterium leprae,esm2_t30_150M_UR50D,150M,full,463,610
+Mycobacterium leprae,esm2_t30_150M_UR50D,150M,full,163,392
+Bunyaviricetes,esm2_t12_35M_UR50D,35M,full,4914,2238
+Bunyaviricetes,esm2_t12_35M_UR50D,35M,full,881,859
+Bunyaviricetes,esm2_t6_8M_UR50D,8M,LoRA,4566,2586
+Bunyaviricetes,esm2_t6_8M_UR50D,8M,LoRA,970,770
+Bunyaviricetes,esm2_t12_35M_UR50D,35M,base,4247,2905
+Bunyaviricetes,esm2_t12_35M_UR50D,35M,base,1176,564
+Bunyaviricetes,esm2_t30_150M_UR50D,150M,LoRA,4756,2396
+Bunyaviricetes,esm2_t30_150M_UR50D,150M,LoRA,1125,615
+Bunyaviricetes,esm2_t6_8M_UR50D,8M,full,3507,3645
+Bunyaviricetes,esm2_t6_8M_UR50D,8M,full,713,1027
+Bunyaviricetes,esm2_t6_8M_UR50D,8M,base,4827,2325
+Bunyaviricetes,esm2_t6_8M_UR50D,8M,base,1342,398
+Bunyaviricetes,esm2_t12_35M_UR50D,35M,LoRA,6414,738
+Bunyaviricetes,esm2_t12_35M_UR50D,35M,LoRA,1515,225
+Bunyaviricetes,esm2_t30_150M_UR50D,150M,base,4666,2486
+Bunyaviricetes,esm2_t30_150M_UR50D,150M,base,1270,470
+Bunyaviricetes,esm2_t30_150M_UR50D,150M,full,5162,1990
+Bunyaviricetes,esm2_t30_150M_UR50D,150M,full,848,892
