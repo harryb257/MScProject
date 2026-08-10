@@ -392,6 +392,9 @@ def class_weighting_for_clf(lower_stacked):
     # Convert to csv
     df_lower_stacked = pd.read_csv(lower_stacked)
 
+    # Drop rows where 'Info_split' == 'NA'
+    df_lower_stacked = df_lower_stacked[df_lower_stacked['Info_split'] != 'NA']
+
     # Determine frequency of positive vs negative labels to be used to weight the loss function
     neg_class = len(df_lower_stacked[df_lower_stacked['Class'] == -1])
     pos_class = len(df_lower_stacked[df_lower_stacked['Class'] == 1])
@@ -521,7 +524,7 @@ def val_one_epoch(model, val_dataloader, loss_function):
         'auc': roc_auc_score(val_labels, val_probs)
     }
 
-    return metrics
+    return metrics, val_labels, val_probs, val_preds
 
 
 def train_classifier(embedding_dim,
@@ -530,6 +533,7 @@ def train_classifier(embedding_dim,
                      loss_function,
                      epochs=20):
     logs = []
+    fold_labels_probs_preds_epoch = {}
 
     for key in train_dataloader.keys():
 
@@ -542,7 +546,7 @@ def train_classifier(embedding_dim,
         for epoch in range(epochs):
             train_metrics = train_one_epoch(model, train_dataloader[key], optimiser, loss_function)
 
-            val_metrics = val_one_epoch(model, val_dataloader[key], loss_function)
+            val_metrics, val_labels, val_probs, val_preds = val_one_epoch(model, val_dataloader[key], loss_function)
 
             logs.append({
                 'fold': key,
@@ -558,9 +562,11 @@ def train_classifier(embedding_dim,
                 'val_auc': val_metrics['auc'],
             })
 
+            fold_labels_probs_preds_epoch[(key, epoch+1)] = (val_labels, val_probs, val_preds)
+
     history = pd.DataFrame(logs)
 
-    return history
+    return history, fold_labels_probs_preds_epoch
 
 
 def train_final_classifier(model,

@@ -341,7 +341,11 @@ def esm2_pipeline(checkpoint,
 
 
     # -------- Train the classifier ----------------
-    clf_trained = train_classifier(embedding_dim, train_loaded, val_loaded, loss_fcn, epochs=clf_epochs)
+    clf_trained, fold_labels_prob_preds = train_classifier(embedding_dim,
+                                                     train_loaded,
+                                                     val_loaded,
+                                                     loss_fcn,
+                                                     epochs=clf_epochs)
 
     # Calculate average validation metrics per epoch
     clf_validation_avg_metrics = clf_trained.groupby(['epoch'])[[
@@ -375,10 +379,23 @@ def esm2_pipeline(checkpoint,
     # Save to csv
     clf_validation_metrics.to_csv(Path(f'{local_output}_clf_validation_metrics_by_fold.csv'))
 
+    # Calculate the epoch with the highest AUC value averaged across the folds
     best_auc_epochs = clf_validation_avg_metrics['val_auc'].idxmax(axis=0)['mean']
+
+    # Save the fold, epoch val labels and val pred values for the best AUC
+    rows = []
+    for fold in val_loaded.keys():
+        labels, probs, preds = fold_labels_prob_preds[(fold, best_auc_epochs)]
+        rows.append(pd.DataFrame(
+            {'Fold': fold,
+             'Label': labels,
+             'Prob': probs,
+             'Preds': preds}))
+    pd.concat(rows, ignore_index=True).to_csv(Path(f'{local_output}_cv_roc_epoch.csv'), index=False)
 
     print('clf_validation_avg_metrics', clf_validation_avg_metrics)
 
+    # Instantiate new classifier
     clf = PerResidueClassifier(embedding_dim).to(device)
 
     # Train classifier using all data for the best AUC number of epochs
@@ -476,6 +493,15 @@ def esm2_pipeline(checkpoint,
     test_labels = test_labels[mask].cpu().numpy()
     test_probs = test_probs[mask].cpu().numpy()
 
+    # Save test labels and probs
+    test_labels_probs_preds = pd.DataFrame({
+        'label': test_labels,
+        'probs': test_probs,
+        'preds': test_preds,
+    })
+
+    test_labels_probs_preds.to_csv(Path(f'{local_output}_test_roc.csv'), index=False)
+
     # Calculate metrics
     accuracy = accuracy_score(test_labels, test_preds)
     precision = precision_score(test_labels, test_preds)
@@ -489,8 +515,8 @@ def esm2_pipeline(checkpoint,
     conf_matrix = confusion_matrix(test_labels, test_preds)
     conf_df = pd.DataFrame(
         conf_matrix,
-        index=['TN', 'TP'],
-        columns=['FN', 'FP']
+        index=['Actual 0', 'Actual 1'],
+        columns=['Predicted 0', 'Predicted 1'],
     )
 
     # Save to CSV
