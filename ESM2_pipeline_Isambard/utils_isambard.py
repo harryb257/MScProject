@@ -570,7 +570,7 @@ def train_final_classifier(model,
     history = pd.DataFrame(logs)
 
     return {
-        "history": history,
-        "model_state_dict": model.state_dict(),
-        "epochs": epochs,
+        'history': history,
+        'model_state_dict': model.state_dict(),
+        'epochs': epochs,
     }

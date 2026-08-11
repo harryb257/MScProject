@@ -87,7 +87,6 @@ def esm2_pipeline(checkpoint,
     lower_level, higher_level, target = select_datasets(pathogen)
 
 
-
     # -------------- Fine tuning Preprocessing -----------------
     if mode != 'base':
 
@@ -303,6 +302,7 @@ def esm2_pipeline(checkpoint,
 
         full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model, mode)
 
+
     else:
         # Generate embeddings for lower level data using the base model
         train_loaded, val_loaded = create_datasets_for_clf(lower_train_dict, lower_val_dict, batch_size,
@@ -310,11 +310,9 @@ def esm2_pipeline(checkpoint,
 
         full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model, mode)
 
-
-
-    # Determine pos / neg weighting for loss function
-    weight = class_weighting_for_clf(lower_level)
-    weight = weight.to(device)
+    # # Determine pos / neg weighting for loss function
+    # weight = class_weighting_for_clf(lower_level)
+    # weight = weight.to(device)
 
 
     # Create a parameter for the final hidden layer dim of the model to use as the classifier input dimension
@@ -327,7 +325,7 @@ def esm2_pipeline(checkpoint,
     clf = clf.to(device)
 
     # Instantiate weighted cross-entropy loss function, ignores positions with mask -100
-    loss_fcn = nn.CrossEntropyLoss(weight=weight, ignore_index=-100)
+    loss_fcn = nn.CrossEntropyLoss( ignore_index=-100) #weight=weight
 
 
 
@@ -481,8 +479,8 @@ def esm2_pipeline(checkpoint,
     conf_matrix = confusion_matrix(test_labels, test_preds)
     conf_df = pd.DataFrame(
         conf_matrix,
-        index=['TN', 'TP'],
-        columns=['FN', 'FP']
+        index=['Actual 0', 'Actual 1'],
+        columns=['Predicted 0', 'Predicted 1'],
     )
 
     # Save to CSV

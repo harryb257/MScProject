@@ -17,7 +17,7 @@ MODES = [
 
 pathogens = [
     Path('./HB/datasets/Bunyaviricetes/'),
-    Path('./HB/datasets/Campylobacter jejuni/'),
+    # Path('./HB/datasets/Campylobacter jejuni/'),
     Path('./HB/datasets/Clostridioides difficile/'),
     Path('./HB/datasets/Dengue virus/'),
     Path('./HB/datasets/Legionellales/'),
@@ -28,7 +28,8 @@ pathogens = [
     Path('./HB/datasets/Orthopoxvirus/'),
     Path('./HB/datasets/Pasteurellaceae/'),
     #Path('./HB/datasets/Yellow fever virus/'),
-    Path('./HB/datasets/Yersinia pestis/')]
+    Path('./HB/datasets/Yersinia pestis/')
+]
 
 results = []
 
