@@ -89,6 +89,8 @@ def prott5_pipeline(checkpoint,
     # Set model to device
     model.to(device)
 
+    print(model)
+
     # Select S3 datasets
     fs = s3fs.S3FileSystem()
 

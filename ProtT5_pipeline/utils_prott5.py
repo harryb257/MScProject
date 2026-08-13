@@ -43,26 +43,6 @@ def set_seeds(s):
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-# # load prott5 models
-# def load_esm_model_classification(checkpoint, num_labels, full):
-#     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-#
-#     model = AutoModelForTokenClassification.from_pretrained(checkpoint, num_labels=num_labels)
-#
-#     if full:
-#         return model, tokenizer
-#
-#     else:
-#         peft_config = LoraConfig(r=4, lora_alpha=1, bias="all", target_modules=["query", "key", "value", "dense"])
-#
-#         model = get_peft_model(model, peft_config)
-#
-#         # Unfreeze the prediction head for LoRA (not required for full fine-tuning as head automatically unfrozen)
-#         for (param_name, param) in model.classifier.named_parameters():
-#             param.requires_grad = True
-#
-#         return model, tokenizer
-
 
 # Classification head
 class PerResidueClassifier(nn.Module):
@@ -298,30 +278,23 @@ def batch_create(dataset, batch_size, tokenizer, model, mode):
 
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
-        if mode == 'base':
+        # Freeze model weights and calculate embeddings
+        with torch.inference_mode():
 
-            # Freeze model weights and calculate embeddings
-            with torch.inference_mode():
-
-                # Use the base model to generate embeddings
-                outputs = model(**inputs)
-                embeddings = outputs.last_hidden_state[
-                    :, 1:-1, :].cpu()  # Slice embeddings to remove start and end CLS/EOS tokens
-
-        else:
-            # Freeze model weights and calculate embeddings
-            with torch.inference_mode():
-
-                # Use fine-tuned model to generate embeddings
-                outputs = model(**inputs)
-                embeddings = outputs.last_hidden_state[
-                    :, 1:-1, :].cpu()  # Slice embeddings to remove start and end CLS/EOS tokens
+            # Use the loaded model's T5 encoder to generate embeddings
+            outputs = model.encoder(
+                input_ids=inputs['input_ids'],
+                attention_mask=inputs['attention_mask'])
+            embeddings = outputs.last_hidden_state[
+                :, :-1, :].cpu()  # Slice embeddings to remove end CLS/EOS tokens
 
         # Convert labels to tensors
         labels = [torch.tensor(x) for x in batch['label']]
 
         # Pad each label to the size of the largest embedding within the batch
         labels = pad_sequence(labels, batch_first=True, padding_value=-100)
+
+        assert embeddings.shape[1] == labels.shape[1]
 
         # Append the embeddings, label and masks per batch to an output list
         emb_output_list.append({
@@ -373,12 +346,10 @@ def preprocess_higher_level(tokenizer, data):
     labels = data['label']
 
     print('inputs', inputs)
-    print('inputs_size', inputs.size())
 
     # True per-residue labels, then -100 for cls + all PAD
-    labels =  labels + [-100] * (1024 - len(labels) - 1)
+    labels =  labels + [-100] * (1024 - len(labels))
     print('labels', labels)
-    print('label_size', labels.size())
 
     return {'input_ids': inputs['input_ids'],
             'attention_mask': inputs['attention_mask'],
@@ -411,7 +382,7 @@ def compute_metrics(p):
     # Return index of higher position (neg or positive residue) per row
     max_pred = np.argmax(pred, axis=-1)
 
-    # Calculate probabilites to be used for AUC
+    # Calculate probabilities to be used for AUC
     probs = torch.softmax(torch.tensor(pred), dim=-1)
     probs = probs[:, :, 1]
 
