@@ -203,12 +203,15 @@ def preprocess_csv(csv_file, return_origin_df_len=False):
 
     # Aggregate columns for wide format
     preprocessed_df = preprocessed_df.groupby(['Info_protein_id', 'Info_group', 'Info_split'], as_index=False).agg(
-        sequence=('Info_AA', ' '.join),
+        sequence=('Info_AA', list),
         label=('Class', list),
         position=('Info_pos', list))
 
     # Apply sliding window
     preprocessed_df = sliding_window(preprocessed_df)
+
+    # Add white space into sequence lists as required by Prott5
+    preprocessed_df['sequence'] = preprocessed_df['sequence'].apply(lambda x: ' '.join(x))
 
     # Delete unlabelled rows
     preprocessed_df = delete_unlabelled_rows(preprocessed_df)
@@ -286,13 +289,18 @@ def batch_create(dataset, batch_size, tokenizer, model, mode):
                 input_ids=inputs['input_ids'],
                 attention_mask=inputs['attention_mask'])
             embeddings = outputs.last_hidden_state[
-                :, :-1, :].cpu()  # Slice embeddings to remove end CLS/EOS tokens
+                :, :-1, :].float().cpu()  # Convert to float to match model, slice embeddings to remove end CLS/EOS token
 
         # Convert labels to tensors
         labels = [torch.tensor(x) for x in batch['label']]
 
         # Pad each label to the size of the largest embedding within the batch
         labels = pad_sequence(labels, batch_first=True, padding_value=-100)
+
+
+
+        tokenised_lengths = [int(mask.sum()) for mask in inputs['attention_mask']]
+
 
         assert embeddings.shape[1] == labels.shape[1]
 
@@ -349,7 +357,6 @@ def preprocess_higher_level(tokenizer, data):
 
     # True per-residue labels, then -100 for cls + all PAD
     labels =  labels + [-100] * (1024 - len(labels))
-    print('labels', labels)
 
     return {'input_ids': inputs['input_ids'],
             'attention_mask': inputs['attention_mask'],

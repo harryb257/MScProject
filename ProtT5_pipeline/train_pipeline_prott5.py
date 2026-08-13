@@ -82,7 +82,7 @@ def prott5_pipeline(checkpoint,
         tokenizer = T5Tokenizer.from_pretrained(checkpoint, do_lower_case=False)
         model = T5EncoderModel.from_pretrained(checkpoint)
     elif mode == 'LoRA':
-        tokenizer, model = load_prott5_with_classification_head(checkpoint, mode, embedding_dim)
+        model, tokenizer = load_prott5_with_classification_head(checkpoint, mode, embedding_dim)
     elif mode == 'full':
         model, tokenizer = load_prott5_with_classification_head(checkpoint, mode, embedding_dim)
 
@@ -166,7 +166,7 @@ def prott5_pipeline(checkpoint,
         for fold in range(1, fine_tune_val_folds+1):
 
             # Load fresh model for each train/validation fold
-            model, tokenizer = load_esm_model_classification(checkpoint, num_labels, full_fine_tuning)
+            model, tokenizer = load_prott5_with_classification_head(checkpoint, mode, embedding_dim)
 
             training_args = TrainingArguments(
                 output_dir=Path(f'{local_output}_training_arguments_val'),
@@ -217,7 +217,7 @@ def prott5_pipeline(checkpoint,
         # Train on full data -----------------------
 
         # Load fresh model
-        model, tokenizer = load_esm_model_classification(checkpoint, num_labels, full_fine_tuning)
+        model, tokenizer = load_prott5_with_classification_head(checkpoint, mode, embedding_dim)
 
         training_args = TrainingArguments(
             output_dir = Path(f'{local_output}_finetune_training_final'),
@@ -302,11 +302,14 @@ def prott5_pipeline(checkpoint,
 
     if mode != 'base':
         if mode == 'full':
-            model = AutoModelForTokenClassification.from_pretrained(Path(f'{local_output}_fine_tuned_model'))
+            # Load fresh model with fine tuned weights
+            model, tokenizer = load_prott5_with_classification_head(Path(f'{local_output}_fine_tuned_model'), mode, embedding_dim)
 
         elif mode == 'LoRA':
-            base_model = AutoModelForTokenClassification.from_pretrained(checkpoint, num_labels=num_labels)
-            model = PeftModel.from_pretrained(base_model, Path(f'{local_output}_fine_tuned_model'))
+            # Load fresh model with LoRA selected
+            model, tokenizer = load_prott5_with_classification_head(checkpoint, mode, embedding_dim)
+            # Add LoRA adapters to the encoder
+            model.encoder = PeftModel.from_pretrained(model.encoder, Path(f'{local_output}_fine_tuned_model'))
 
         model.eval()
         model.to(device)
@@ -438,12 +441,15 @@ def prott5_pipeline(checkpoint,
 
     # Aggregate columns for wide format
     test_df = test_df.groupby(['Info_protein_id'], as_index=False).agg(
-        sequence=('Info_AA', ''.join),
+        sequence=('Info_AA', list),
         label=('Class', list),
         position=('Info_pos', list))
 
     # Apply sliding window
     test_df = sliding_window(test_df)
+    
+    # Add white space into sequences as required by ProtT5
+    test_df['sequence'] = test_df['sequence'].apply(lambda x: ' '.join(x))
 
     # Delete rows
     test_df = delete_unlabelled_rows(test_df)
