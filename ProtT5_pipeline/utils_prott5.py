@@ -353,8 +353,6 @@ def preprocess_higher_level(tokenizer, data):
 
     labels = data['label']
 
-    print('inputs', inputs)
-
     # True per-residue labels, then -100 for cls + all PAD
     labels =  labels + [-100] * (1024 - len(labels))
 
