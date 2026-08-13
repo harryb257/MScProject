@@ -46,11 +46,10 @@ def esm2_pipeline(checkpoint,
                   fine_tune_val_folds,
                   batch_size,
                   num_fine_tune_epochs,
-                  clf_epochs,
-                  pathogen):
+                  clf_epochs):
 
     # Extract names
-    pathogen_name = pathogen.rstrip('/').split('/')[-1]
+    pathogen_name = files.name
     checkpoint_name = checkpoint.split('/')[-1]
 
     # Local output directory
@@ -80,8 +79,10 @@ def esm2_pipeline(checkpoint,
     model.to(device)
 
 
+    pathogen = files
+
     # Assign to variables for automatic csv selection in code
-    lower_level, higher_level, target = select_datasets(files)
+    lower_level, higher_level, target = select_datasets(pathogen)
 
 
 
