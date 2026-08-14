@@ -183,9 +183,10 @@ def prott5_pipeline(checkpoint,
                 load_best_model_at_end=False,
                 metric_for_best_model='auc',
                 greater_is_better=True,
-                dataloader_num_workers=4,
-                dataloader_pin_memory=True,
-                dataloader_persistent_workers=True
+                gradient_checkpointing=True
+                #dataloader_num_workers=4,
+                #dataloader_pin_memory=True,
+                #dataloader_persistent_workers=True
             )
 
             trainer = Trainer(
@@ -232,9 +233,10 @@ def prott5_pipeline(checkpoint,
             save_strategy='no',
             logging_strategy='epoch',
             load_best_model_at_end=False,
-            dataloader_num_workers=4,
-            dataloader_pin_memory=True,
-            dataloader_persistent_workers=True
+            gradient_checkpointing=True
+            #dataloader_num_workers=4,
+            #dataloader_pin_memory=True,
+            #dataloader_persistent_workers=True
         )
 
         trainer = Trainer(
@@ -260,8 +262,8 @@ def prott5_pipeline(checkpoint,
 
         model_output = Path(f'{local_output}_fine_tuned_model')
 
-        # Explicitly save model
-        trainer.save_model(model_output)
+        # Explicitly save model (save trained encoder)
+        model.encoder.save_pretrained(model_output)
 
         # Save validation metrics
         eval_log_df.to_csv(Path(f'{local_output}_cv_validation_metrics.csv'), index=False)
@@ -306,11 +308,10 @@ def prott5_pipeline(checkpoint,
             model, tokenizer = load_prott5_with_classification_head(Path(f'{local_output}_fine_tuned_model'), mode, embedding_dim)
 
         elif mode == 'LoRA':
-            # Load fresh model with LoRA selected
-            model, tokenizer = load_prott5_with_classification_head(checkpoint, mode, embedding_dim)
-            # Add LoRA adapters to the encoder
-            model.encoder = PeftModel.from_pretrained(model.encoder, Path(f'{local_output}_fine_tuned_model'))
-
+            base_model = T5EncoderModel.from_pretrained(checkpoint)
+            
+            model = PeftModel.from_pretrained(base_model, Path(f'{local_output}_fine_tuned_model'))
+            
         model.eval()
         model.to(device)
 
@@ -335,7 +336,7 @@ def prott5_pipeline(checkpoint,
 
 
     # Create a parameter for the final hidden layer dim of the model to use as the classifier input dimension
-    embedding_dim = model.config.hidden_size
+    #embedding_dim = model.config.hidden_size
 
     # Instantiate classifier
     clf = PerResidueClassifier(embedding_dim)

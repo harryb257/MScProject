@@ -71,14 +71,42 @@ class ProtT5ForResidueClassification(nn.Module):
             # Add classification head using existing 2 layer nn classifier
             self.classifier = PerResidueClassifier(embedding_dim)
 
+            # Make trainable and keep in fp32
+            for param in self.classifier.parameters():
+                if param.requires_grad:
+                    param.data = param.data.float()
+
         elif mode == 'LoRA':
             # Lora Config as per Nature paper
             peft_config = LoraConfig(r=4, lora_alpha=1, bias="all", target_modules=["q","k","v","o"])
             # Inject LoRA adapters
             self.encoder = get_peft_model(self.encoder, peft_config)
 
+            # Make trainable and keep in fp32
+            for param in self.encoder.parameters():
+                if param.requires_grad:
+                    param.data = param.data.float()
+
+            # Enable activation checkpointing
+            self.encoder.gradient_checkpointing_enable()
+
             # Add classification head using existing 2 layer nn classifier
             self.classifier = PerResidueClassifier(embedding_dim)
+            
+            # Make trainable and keep in fp32
+            for param in self.classifier.parameters():
+                if param.requires_grad:
+                    param.data = param.data.float()
+
+    def gradient_checkpointing_enable(self, gradient_checkpointing_kwargs=None):
+        self.encoder.gradient_checkpointing_enable(
+            gradient_checkpointing_kwargs={
+                "use_reentrant": False,
+                **(gradient_checkpointing_kwargs or {})})
+
+    def gradient_checkpointing_disable(self):
+        self.encoder.gradient_checkpointing_disable()
+
 
     # Forward pass through the ProtT5 encoder and classifier to generate embeddings and losses respectively
     def forward(
@@ -284,12 +312,24 @@ def batch_create(dataset, batch_size, tokenizer, model, mode):
         # Freeze model weights and calculate embeddings
         with torch.inference_mode():
 
-            # Use the loaded model's T5 encoder to generate embeddings
-            outputs = model.encoder(
-                input_ids=inputs['input_ids'],
-                attention_mask=inputs['attention_mask'])
-            embeddings = outputs.last_hidden_state[
-                :, :-1, :].float().cpu()  # Convert to float to match model, slice embeddings to remove end CLS/EOS token
+            
+            if mode == 'full':
+
+                # Use the loaded model's T5 encoder to generate embeddings
+                outputs = model.encoder(
+                    input_ids=inputs['input_ids'],
+                    attention_mask=inputs['attention_mask'])
+                embeddings = outputs.last_hidden_state[
+                        :, :-1, :].float().cpu()  # Convert to float to match model, slice embeddings to remove end CLS/EOS token
+
+            if mode == 'LoRA':
+
+                # Use the loaded model (is already only the encoder)
+                outputs = model(
+                        input_ids=inputs['input_ids'],
+                        attention_mask=inputs['attention_mask'])
+                embeddings = outputs.last_hidden_state[
+                        :, :-1, :].float().cpu()  # Convert to float to match model, slice embeddings to remove end CLS/EOS token
 
         # Convert labels to tensors
         labels = [torch.tensor(x) for x in batch['label']]
