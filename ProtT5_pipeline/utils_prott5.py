@@ -87,9 +87,6 @@ class ProtT5ForResidueClassification(nn.Module):
                 if param.requires_grad:
                     param.data = param.data.float()
 
-            # Enable activation checkpointing
-            self.encoder.gradient_checkpointing_enable()
-
             # Add classification head using existing 2 layer nn classifier
             self.classifier = PerResidueClassifier(embedding_dim)
             
@@ -97,16 +94,6 @@ class ProtT5ForResidueClassification(nn.Module):
             for param in self.classifier.parameters():
                 if param.requires_grad:
                     param.data = param.data.float()
-
-    def gradient_checkpointing_enable(self, gradient_checkpointing_kwargs=None):
-        self.encoder.gradient_checkpointing_enable(
-            gradient_checkpointing_kwargs={
-                "use_reentrant": False,
-                **(gradient_checkpointing_kwargs or {})})
-
-    def gradient_checkpointing_disable(self):
-        self.encoder.gradient_checkpointing_disable()
-
 
     # Forward pass through the ProtT5 encoder and classifier to generate embeddings and losses respectively
     def forward(
@@ -149,15 +136,13 @@ def select_datasets(files):
     higher_level = None
     target = None
 
-    for file in files:
-        name = PurePosixPath(file).name
-
-        if 'Lower' in name:
-            lower_level = "s3://" + file
-        elif 'Higher' in name:
-            higher_level = "s3://" + file
-        elif 'Target' in name:
-            target = "s3://" + file
+    for file in files.iterdir():
+        if 'Lower' in file.name:
+            lower_level = file
+        elif 'Higher' in file.name:
+            higher_level = file
+        elif 'Target' in file.name:
+            target = file
 
     return lower_level, higher_level, target
 
@@ -288,9 +273,6 @@ def batch_create(dataset, batch_size, tokenizer, model, mode):
         batch_size=batch_size,
         shuffle=False,
         collate_fn=collate_fn,
-        num_workers=4,
-        pin_memory=True,
-        persistent_workers=True
     )
 
     emb_output_list = []

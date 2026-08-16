@@ -51,7 +51,6 @@ for pathogen in pathogens:
                 batch_size=batch_size,
                 num_fine_tune_epochs=num_fine_tune_epochs,
                 clf_epochs=clf_epochs,
-                pathogen=pathogen
             )
 
             results.append(result)

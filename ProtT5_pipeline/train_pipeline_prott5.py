@@ -28,8 +28,6 @@ from sklearn.metrics import (
     confusion_matrix)
 
 from pathlib import Path
-import s3fs
-import boto3
 import gc
 
 from utils_prott5 import (load_prott5_with_classification_head, select_datasets, preprocess_csv,
@@ -48,31 +46,19 @@ def prott5_pipeline(checkpoint,
                   fine_tune_val_folds,
                   batch_size,
                   num_fine_tune_epochs,
-                  clf_epochs,
-                  pathogen):
+                  clf_epochs):
 
     # Extract names
-    pathogen_name = pathogen.rstrip('/').split('/')[-1]
+    pathogen_name = files.name
     checkpoint_name = checkpoint.split('/')[-1]
 
     # Local output directory
-    local_output = Path(f'./output/{pathogen_name}/{checkpoint_name}_{mode}')
+    local_output = Path('./HB/output_prott5') / pathogen_name / f'{checkpoint_name}_{mode}'
 
     local_output.mkdir(parents=True, exist_ok=True)
 
-    # S3 destination
-    bucket = 'esm2-s3-bucket'
-    prefix = f'results_prott5'
-    s3 = boto3.client('s3')
-
     # Set random seeds
     set_seeds(42)
-
-    # # Set fine-tuning method
-    # if mode == 'full':
-    #     full_fine_tuning = True
-    # elif mode == 'LoRA':
-    #     full_fine_tuning = False
 
     # Set global embedding dimension variable, used for PerResidueClassifier input
     embedding_dim = 1024
@@ -91,13 +77,11 @@ def prott5_pipeline(checkpoint,
 
     print(model)
 
-    # Select S3 datasets
-    fs = s3fs.S3FileSystem()
-
-    files = fs.ls(files)
+    pathogen = files
 
     # Assign to variables for automatic csv selection in code
-    lower_level, higher_level, target = select_datasets(files)
+    lower_level, higher_level, target = select_datasets(pathogen)
+
 
 
 
@@ -183,10 +167,6 @@ def prott5_pipeline(checkpoint,
                 load_best_model_at_end=False,
                 metric_for_best_model='auc',
                 greater_is_better=True,
-                gradient_checkpointing=True
-                #dataloader_num_workers=4,
-                #dataloader_pin_memory=True,
-                #dataloader_persistent_workers=True
             )
 
             trainer = Trainer(
@@ -233,10 +213,6 @@ def prott5_pipeline(checkpoint,
             save_strategy='no',
             logging_strategy='epoch',
             load_best_model_at_end=False,
-            gradient_checkpointing=True
-            #dataloader_num_workers=4,
-            #dataloader_pin_memory=True,
-            #dataloader_persistent_workers=True
         )
 
         trainer = Trainer(
@@ -544,34 +520,6 @@ def prott5_pipeline(checkpoint,
     test_results.to_csv(Path(f'{local_output}_test_predictions.csv'))
 
     print('test results', test_results)
-
-    local_output2 = Path("./output")
-
-    # Upload everything under local_output
-    for file in local_output2.rglob("*"):
-        if file.is_file():
-            key = f'{prefix}/{file.relative_to(local_output2).as_posix()}'
-            print('uploading', file)
-            print('S3 key', key)
-            try:
-                s3.upload_file(str(file), bucket, key)
-                print('Upload complete:', key)
-
-                # Delete local file after successful upload
-                file.unlink()
-                print('Deleted local file:', file)
-
-            except Exception as e:
-                print('Upload failed:', e)
-
-    # Remove empty directories
-    for d in sorted(local_output2.rglob('*'), reverse=True):
-        if d.is_dir():
-            try:
-                d.rmdir()
-            except OSError:
-                # Directory not empty
-                pass
 
 
     # Free up memory
