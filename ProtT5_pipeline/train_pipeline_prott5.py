@@ -167,7 +167,11 @@ def prott5_pipeline(checkpoint,
                 load_best_model_at_end=False,
                 metric_for_best_model='auc',
                 greater_is_better=True,
+                dataloader_num_workers=4,
+                dataloader_pin_memory=True,
+                dataloader_persistent_workers=True
             )
+            
 
             trainer = Trainer(
                 model=model,
@@ -213,6 +217,9 @@ def prott5_pipeline(checkpoint,
             save_strategy='no',
             logging_strategy='epoch',
             load_best_model_at_end=False,
+            dataloader_num_workers=4,
+            dataloader_pin_memory=True,
+            dataloader_persistent_workers=True
         )
 
         trainer = Trainer(
