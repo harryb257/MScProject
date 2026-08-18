@@ -304,7 +304,7 @@ def batch_create(dataset, batch_size, tokenizer, model, mode):
                 embeddings = outputs.last_hidden_state[
                         :, :-1, :].float().cpu()  # Convert to float to match model, slice embeddings to remove end CLS/EOS token
 
-            if mode == 'LoRA':
+            else:
 
                 # Use the loaded model (is already only the encoder)
                 outputs = model(
