@@ -1,13 +1,15 @@
 from train_pipeline_prott5 import prott5_pipeline
+from pathlib import Path
 
 CHECKPOINTS = [
     "Rostlab/prot_t5_xl_half_uniref50-enc"
 ]
 
 MODES = [
-    "base",
+    #"base",
+    #"LoRA",
     "full",
-    "LoRA"
+    #"base"
 ]
 
 pathogens = [
@@ -29,7 +31,7 @@ pathogens = [
 results = []
 
 # Batch size to use throughout
-batch_size = 16
+batch_size = 4
 # Number of labels (positive and negative)
 num_labels = 2
 # Number of fine-tuning epochs
