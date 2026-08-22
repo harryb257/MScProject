@@ -65,7 +65,7 @@ class ProtT5ForResidueClassification(nn.Module):
         super().__init__()
 
         # Prott5 encoder
-        self.encoder = T5EncoderModel.from_pretrained(checkpoint)
+        self.encoder = T5EncoderModel.from_pretrained(checkpoint, torch_dtype=torch.float32, attn_implementation="eager")
 
         if mode == 'full':
             # Add classification head using existing 2 layer nn classifier
@@ -95,7 +95,7 @@ class ProtT5ForResidueClassification(nn.Module):
                 if param.requires_grad:
                     param.data = param.data.float()
 
-    # Forward pass through the ProtT5 encoder and classifier to generate embeddings and losses respectively
+    # Forward pass through the ProtT5 encoder to generate embeddings and classifier to generate losses and logits
     def forward(
         self,
         input_ids,
@@ -106,7 +106,7 @@ class ProtT5ForResidueClassification(nn.Module):
 
         embeddings = outputs.last_hidden_state
 
-        logits = self.classifier(embeddings)
+        logits = self.classifier(embeddings.float())
         loss_fcn = nn.CrossEntropyLoss(ignore_index=-100)
         loss = loss_fcn(logits.reshape(-1, 2), labels.reshape(-1))
 
@@ -263,11 +263,11 @@ def collate_fn(batch):
         'label': [x['label'] for x in batch]
     }
 
-def batch_create(dataset, batch_size, tokenizer, model, mode):
+
+def batch_create(dataset, batch_size, tokenizer, model):
     """
     Function to create a DataLoader instance using the custom collate function
     """
-    # Create a DataLoader instance using the cv dataset and the custom collate function
     loader = DataLoader(
         dataset,
         batch_size=batch_size,
@@ -276,10 +276,8 @@ def batch_create(dataset, batch_size, tokenizer, model, mode):
     )
 
     emb_output_list = []
-
     model.eval()
 
-    # Loop through each batch of tensors and apply tokenisation to each sequence
     for batch in loader:
 
         inputs = tokenizer(
@@ -291,42 +289,36 @@ def batch_create(dataset, batch_size, tokenizer, model, mode):
 
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
-        # Freeze model weights and calculate embeddings
         with torch.inference_mode():
+            outputs = model(**inputs)
 
-            
-            if mode == 'full':
+        hidden_states = outputs.last_hidden_state.cpu().float()
 
-                # Use the loaded model's T5 encoder to generate embeddings
-                outputs = model.encoder(
-                    input_ids=inputs['input_ids'],
-                    attention_mask=inputs['attention_mask'])
-                embeddings = outputs.last_hidden_state[
-                        :, :-1, :].float().cpu()  # Convert to float to match model, slice embeddings to remove end CLS/EOS token
+        # Remove padding and EOS for each protein
+        embeddings = [
+            hidden_states[i, :inputs['attention_mask'][i].sum() - 1]
+            for i in range(len(batch['sequence']))
+        ]
 
-            else:
+        # Dynamically pad to longest protein in this batch
+        embeddings = pad_sequence(
+            embeddings,
+            batch_first=True,
+            padding_value=0.0
+        )
 
-                # Use the loaded model (is already only the encoder)
-                outputs = model(
-                        input_ids=inputs['input_ids'],
-                        attention_mask=inputs['attention_mask'])
-                embeddings = outputs.last_hidden_state[
-                        :, :-1, :].float().cpu()  # Convert to float to match model, slice embeddings to remove end CLS/EOS token
+        # Dynamically pad labels to longest protein in this batch
+        labels = pad_sequence(
+            [torch.tensor(x, dtype=torch.long) for x in batch['label']],
+            batch_first=True,
+            padding_value=-100
+        )
 
-        # Convert labels to tensors
-        labels = [torch.tensor(x) for x in batch['label']]
+        assert embeddings.size(1) == labels.size(1), (
+            f"Embedding length ({embeddings.size(1)}) != "
+            f"label length ({labels.size(1)})"
+        )
 
-        # Pad each label to the size of the largest embedding within the batch
-        labels = pad_sequence(labels, batch_first=True, padding_value=-100)
-
-
-
-        tokenised_lengths = [int(mask.sum()) for mask in inputs['attention_mask']]
-
-
-        assert embeddings.shape[1] == labels.shape[1]
-
-        # Append the embeddings, label and masks per batch to an output list
         emb_output_list.append({
             'embeddings': embeddings,
             'labels': labels
@@ -335,7 +327,10 @@ def batch_create(dataset, batch_size, tokenizer, model, mode):
     return emb_output_list
 
 
-def create_datasets_for_clf(train_dict, val_dict, batch_size, tokenizer, model, mode):
+
+
+
+def create_datasets_for_clf(train_dict, val_dict, batch_size, tokenizer, model):
     """
     Function to create datasets and store in dictionaries for cross validation
     """
@@ -352,11 +347,11 @@ def create_datasets_for_clf(train_dict, val_dict, batch_size, tokenizer, model, 
 
     train_loaded = {}
     for key, value in train_datasets.items():
-        train_loaded[key] = batch_create(value, batch_size, tokenizer, model, mode)
+        train_loaded[key] = batch_create(value, batch_size, tokenizer, model)
 
     val_loaded = {}
     for key, value in val_datasets.items():
-        val_loaded[key] = batch_create(value, batch_size, tokenizer, model, mode)
+        val_loaded[key] = batch_create(value, batch_size, tokenizer, model)
 
     return train_loaded, val_loaded
 

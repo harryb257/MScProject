@@ -157,7 +157,7 @@ def prott5_pipeline(checkpoint,
                 gradient_accumulation_steps=1,
                 per_device_train_batch_size=batch_size,
                 per_device_eval_batch_size=batch_size,
-                fp16=True,
+                fp16=False,
                 num_train_epochs=num_fine_tune_epochs,
                 learning_rate=3e-4, # Match to Nature peft paper
                 seed=42,
@@ -212,7 +212,7 @@ def prott5_pipeline(checkpoint,
             num_train_epochs=num_fine_tune_epochs,
             learning_rate=3e-4, # Match to Nature peft paper
             seed=42,
-            fp16=True,
+            fp16=False,
             eval_strategy='no',
             save_strategy='no',
             logging_strategy='epoch',
@@ -287,29 +287,32 @@ def prott5_pipeline(checkpoint,
 
     if mode != 'base':
         if mode == 'full':
-            # Load fresh model with fine tuned weights
-            model, tokenizer = load_prott5_with_classification_head(Path(f'{local_output}_fine_tuned_model'), mode, embedding_dim)
+            # Load fresh encoder with fine-tuned weights
+            model = T5EncoderModel.from_pretrained( Path(f'{local_output}_fine_tuned_model'))
 
         elif mode == 'LoRA':
+            # Load encoder with pre-trained weights
             base_model = T5EncoderModel.from_pretrained(checkpoint)
             
+            # Add the fine tuned LoRA adapters into the pre-trained model
             model = PeftModel.from_pretrained(base_model, Path(f'{local_output}_fine_tuned_model'))
-            
+            model = model.merge_and_unload() # Permanently add adapters into base weights
+
         model.eval()
         model.to(device)
 
         # Generate embeddings for lower level data using the fine-tuned model
         train_loaded, val_loaded = create_datasets_for_clf(lower_train_dict, lower_val_dict, batch_size,
-                                                           tokenizer, model, mode)
+                                                           tokenizer, model)
 
-        full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model, mode)
+        full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model)
 
     else:
         # Generate embeddings for lower level data using the base model
         train_loaded, val_loaded = create_datasets_for_clf(lower_train_dict, lower_val_dict, batch_size,
-                                                           tokenizer, model, mode)
+                                                           tokenizer, model)
 
-        full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model, mode)
+        full_train_batched = batch_create(lower_train_all, batch_size, tokenizer, model)
 
 
 
@@ -442,7 +445,7 @@ def prott5_pipeline(checkpoint,
     test_datasets = SequenceDataset(test_df)
 
     # Create batches and embeddings using relevant ESM2 model
-    test_batched = batch_create(test_datasets, batch_size, tokenizer, model, mode)
+    test_batched = batch_create(test_datasets, batch_size, tokenizer, model)
 
 
     # ------ Evaluate using pretrained classifier --------
