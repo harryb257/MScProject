@@ -1,0 +1,2 @@
+train_runtime,train_samples_per_second,train_steps_per_second,total_flos,train_loss,epoch,step
+650.1033,36.774,2.303,9.556747180957408e+16,0.35949284025407585,3.0,1497
