@@ -1,0 +1,4 @@
+pathogen,checkpoint,model size,mode,trainable_params,total_params,trainable_percent
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,1208273282,1208273282,100.0
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,LoRA,2098562,1210239362,0.1734005739601783
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,base,1208141824,1208141824,100.0

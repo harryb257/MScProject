@@ -1,0 +1,18 @@
+pathogen,checkpoint,model size,mode,epoch,train_loss,train_acc
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,base,1,0.6565492366041455,0.691510226954329
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,base,2,0.5105355610804898,0.7929391986550854
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,1,0.7108330598899296,0.6424768842813113
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,2,0.6401946619153023,0.7223311852059401
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,3,0.6331952033298356,0.7206500420285794
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,4,0.6252962318914277,0.7097226113757354
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,5,0.6240578666329384,0.7038386102549734
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,6,0.6196653002074787,0.699915942841132
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,7,0.619509576686791,0.6962734659568507
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,8,0.6159638549600329,0.6948725133090502
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,9,0.6138746898089137,0.6931913701316895
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,10,0.6113403205360685,0.6836648921266462
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,11,0.6097008532711438,0.691510226954329
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,LoRA,1,0.6686585141079766,0.7102829924348557
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,LoRA,2,0.5243046821228096,0.7856542448865228
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,LoRA,3,0.447995118264641,0.8077892967217708
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,LoRA,4,0.3862301622118269,0.8285233959092183

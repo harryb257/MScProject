@@ -1,0 +1,7 @@
+pathogen,checkpoint,model size,mode,Predicted 0,Predicted 1
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,base,115,426
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,base,37,350
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,0,541
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,full,0,387
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,LoRA,182,359
+Orthopoxvirus,prot_t5_xl_half_uniref50-enc,,LoRA,79,308
