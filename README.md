@@ -1,4 +1,4 @@
-# Phylogeny-Aware Protein Language Model Fine-Tuning for Linear B-cell epitope Per-Residue Classification
+# Phylogeny-Aware Protein Language Model Fine-Tuning for Linear B-cell Epitope Per-Residue Classification
 This repository contains the code and supporting materials developed for the MSc Thesis: **Hey LoRA, it's Me: A systematic assessment of the performance gains of baseline/fine-tuned protein language models vs. classic features for the downstream task of epitope prediction.**
 
 Submitted to the University of Bristol in accordance with the requirements of the degree of Master of Science in Data Science in the Faculty of Science and Engineering.
