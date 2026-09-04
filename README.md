@@ -1,8 +1,7 @@
-# MScProject
-Code for UoB MSc Thesis - Systematic assessment of the performance gains of baseline/fine-tuned protein language models vs. classic features for the downstream task of epitope prediction
+# Phylogeny-Aware Protein Language Model Fine-Tuning for Per-Residue Classification
+This repository contains the code and supporting materials developed for Hey LoRA, it's Me: A systematic assessment of the performance gains of baseline/fine-tuned protein language models vs. classic features for the downstream task of epitope prediction.
 
 ### Abstract 
-
 B-cell epitopes are antigenic regions recognised by B-cell receptors that are important targets in vaccine and therapeutic development [1,2,3,4]. A class of B-cell epitopes, linear B-cell epitopes (LBCEs) are sequences of amino acids adjacent in an antigen's primary structure that can be computationally predicted as a low-cost alternative for LBCE screening [3,5,6,7]. 
 
 Protein language models (pLM) provide abstract sequence representations that capture protein structure, functionality and evolutionary context that can be adapted to downstream tasks using fine-tuning [8,9,10,11]. Parameter-efficient fine-tuning (PEFT) methods like low-rank adaptation (LoRA), enable task-specific adaptation at lower computational cost than full-fine tuning [12,8].
@@ -11,11 +10,15 @@ Previous studies suggest fine-tuning pLMs can improve downstream predictive perf
 
 This project included the development, training, evaluation and final performance assessment of pLM pipelines for the downstream task of LBCE per-residue classification prediction using phylogeny-aware datasets. Predictions employing engineered Pfeature representations were also assessed. Full fine-tuning produced pathogen specific effects that were directionally inconsistent with fine-tuning mode and model size. Additionally, LoRA PEFT did not improve performance compared with frozen pLM embeddings. Overall the results do not support a consistent benefit from pLM fine-tuning for phylogeny-aware per-residue LBCE classification prediction across the pathogens tested.
 
+### Project Overview
+This repository contains pipelines for:
+Preparation and preprocessing of pathogen/epitope datasets.
+Fine-tuning pre-trained protein language models (ESM-2 and ProtT5-XL) using full-fine tuning and LoRA PEFT.
+Training per-residue classifiers.
+Evaluation using appropriate classification and model-performance metrics.
+Comparison and analysis of fine-tuned and non-fine-tuned models or engineered-feature representations across different pathogen datasets.
 
-
-
-
-
+### Repository structure
 
 
 
