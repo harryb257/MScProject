@@ -16,13 +16,12 @@ This repository contains pipelines for:
 - Fine-tuning pre-trained protein language models (ESM-2 and ProtT5-XL) using full-fine tuning and LoRA PEFT.
 - Training per-residue classifiers using pLM embeddings or Pfeature representations.
 - Output of model-performance metrics.
+  
 The analysis contains:
 - Comparison and analysis of fine-tuned and non-fine-tuned models or engineered-feature representations across different pathogen datasets.
 
-
 ### Implementation
 Please refer to Thesis.pdf for implementation notes. 
-
 
 ## Pipelines
 The pLM pipelines supports three modes: 
@@ -33,7 +32,8 @@ The pLM pipelines supports three modes:
 The resulting embeddings are used to train an LBCE classifier and generate predictions on target-level data.
 ![Pipeline overview](Pipeline.png)
 
-*Pipeline overview for training and evaluating the LBCE classifier.*
+* Overview of pipeline training and evaluation within for classifying embeddings from pre-
+trained or fine-tuned pLMs for the purpose of LBCE classification prediction. pLM fine-tuning modes with full fine-tuning or LoRA fine-tuning is shown in red. The base mode using the pre-trained pLM only is shown in blue*
 
 The Pfeature pipeline supports generation of engineered Pfeatures to train an LBCE classifier and generate predictions on target-level data. 
 
