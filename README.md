@@ -1,5 +1,9 @@
 # Phylogeny-Aware Protein Language Model Fine-Tuning for Per-Residue Classification
-This repository contains the code and supporting materials developed for **Hey LoRA, it's Me: A systematic assessment of the performance gains of baseline/fine-tuned protein language models vs. classic features for the downstream task of epitope prediction.**
+This repository contains the code and supporting materials developed for the MSc Thesis: **Hey LoRA, it's Me: A systematic assessment of the performance gains of baseline/fine-tuned protein language models vs. classic features for the downstream task of epitope prediction.**
+
+Submitted to the University of Bristol in accordance with the requirements of the degree of Master of Science in Data Science in the Faculty of Science and Engineering.
+
+University of Bristol, School of Engineering Mathematics and Technology
 
 ### Abstract 
 B-cell epitopes are antigenic regions recognised by B-cell receptors that are important targets in vaccine and therapeutic development [1,2,3,4]. A class of B-cell epitopes, linear B-cell epitopes (LBCEs) are sequences of amino acids adjacent in an antigen's primary structure that can be computationally predicted as a low-cost alternative for LBCE screening [3,5,6,7]. 
