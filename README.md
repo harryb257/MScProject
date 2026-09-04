@@ -12,11 +12,13 @@ This project included the development, training, evaluation and final performanc
 
 ### Project Overview
 This repository contains pipelines for:
-Preparation and preprocessing of pathogen/epitope datasets.
-Fine-tuning pre-trained protein language models (ESM-2 and ProtT5-XL) using full-fine tuning and LoRA PEFT.
-Training per-residue classifiers.
-Evaluation using appropriate classification and model-performance metrics.
-Comparison and analysis of fine-tuned and non-fine-tuned models or engineered-feature representations across different pathogen datasets.
+- Preparation and preprocessing of pathogen/epitope datasets.
+- Fine-tuning pre-trained protein language models (ESM-2 and ProtT5-XL) using full-fine tuning and LoRA PEFT.
+- Training per-residue classifiers using pLM embeddings or Pfeature representations.
+- Output of model-performance metrics.
+The analysis contains:
+- Comparison and analysis of fine-tuned and non-fine-tuned models or engineered-feature representations across different pathogen datasets.
+
 
 ### Implementation
 Please refer to Thesis.pdf for implementation notes. 
