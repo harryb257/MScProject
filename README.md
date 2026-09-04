@@ -22,7 +22,18 @@ Comparison and analysis of fine-tuned and non-fine-tuned models or engineered-fe
 Please refer to Thesis.pdf for implementation notes. 
 
 
+## Pipelines
+The pLM pipelines supports three modes: 
+- fine-tuning the pretrained language model using full fine-tuning (full)
+- fine-tuning using or LoRA (LoRA)
+- using the pretrained model directly without fine-tuning (base)
 
+The resulting embeddings are used to train an LBCE classifier and generate predictions on target-level data.
+![Pipeline overview](Pipeline.png)
+
+*Pipeline overview for training and evaluating the LBCE classifier.*
+
+The Pfeature pipeline supports generation of engineered Pfeatures to train an LBCE classifier and generate predictions on target-level data. 
 
 
 
